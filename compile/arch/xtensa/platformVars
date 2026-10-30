@@ -1,0 +1,24 @@
+#
+# Makefile definitions for Embedded Xinu shared between all supported
+# Xtensa ESP32-S3 platforms.
+#
+
+TEMPLATE_ARCH := xtensa
+
+# Architecture root and prefix (ignored if user overrides COMPILER_ROOT).
+ARCH_ROOT     :=
+ARCH_PREFIX   := xtensa-esp32s3-elf-
+
+# Flag for producing GDB debug information.
+BUGFLAG       := -gstabs+
+
+# Objcopy flags, used for including data files in the resulting binary.
+OCFLAGS       := -I binary -O elf32-xtensa-le -B xtensa
+
+# Add a way to test for any Xtensa ESP32-S3 platform in C code.
+DEFS          += -D_XINU_ARCH_XTENSA_ -D_XINU_ARCH_ESP32S3_
+
+# Default built target.  The AMP payload is a raw binary from the linked ELF,
+# which the IDF loader maps from the xinu partition.
+$(BOOTIMAGE): xinu.elf
+	$(OBJCOPY) -O binary $< $@

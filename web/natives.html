@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Librerías Java y natives · Xinu ESP32-S3</title>
+<style>
+:root{--bg:#0a0f1d;--card:#131d33;--line:#26344f;--txt:#e8eef7;--muted:#a9b8cf;
+--dim:#7c8ca6;--acc:#6ea8fe;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);
+font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,Ubuntu,sans-serif}
+main{max-width:58rem;margin:0 auto;padding:2rem 1.2rem 5rem}
+a{color:var(--acc);text-decoration:none}a:hover{text-decoration:underline}
+h1{font-size:2rem;line-height:1.2;margin:.2rem 0 .4rem;letter-spacing:-.02em}
+h2{font-size:1.35rem;margin:2.4rem 0 .6rem;padding-top:.6rem;border-top:1px solid var(--line)}
+h3{font-size:1.08rem;margin:1.7rem 0 .4rem;color:#dbe7fa}
+h4{font-size:.98rem;margin:1.2rem 0 .3rem}
+p{margin:.65rem 0;color:#d5e0f0}
+code{font-family:var(--mono);background:#0b1322;border:1px solid #1f2c45;border-radius:4px;
+padding:.08em .35em;font-size:.88em}
+pre{background:#080d18;border:1px solid var(--line);border-radius:10px;padding:1rem;overflow:auto;
+font-size:.84rem;line-height:1.55}
+pre code{background:none;border:0;padding:0;font-size:inherit}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid #1e2b44;vertical-align:top}
+th{color:var(--dim);font-size:.78rem;text-transform:uppercase;letter-spacing:.06em}
+blockquote{margin:1rem 0;padding:.7rem 1rem;border-left:3px solid var(--acc);background:#0f1a2e;
+border-radius:0 8px 8px 0;color:var(--muted)}
+hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+ul,ol{padding-left:1.4rem}li{margin:.25rem 0;color:#d5e0f0}
+.back{display:inline-block;margin-bottom:1rem;font-size:.9rem;color:var(--muted);
+border:1px solid var(--line);border-radius:8px;padding:.4rem .7rem}
+.back:hover{color:var(--txt);border-color:var(--acc)}
+.toc{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:1rem 1.2rem;margin:1.6rem 0}
+.toc h2{border:0;margin:.1rem 0 .5rem;padding:0;font-size:1rem}
+.toc ul{list-style:none;padding:0;margin:0;columns:2;column-gap:2rem}
+.toc li{margin:.15rem 0;font-size:.9rem}
+.toc .l3{padding-left:1rem;color:var(--dim)}
+@media(max-width:720px){.toc ul{columns:1}}
+</style>
+</head>
+<body>
+<main>
+<a class="back" href="index.html">← Volver al dashboard</a>
+<h1 id="manual-de-librerías-java-y-natives-xinu-amp">Manual de librerías Java y natives — Xinu AMP</h1>
+<p>Este manual explica cómo añadir una <strong>librería Java</strong> a la Simple JVM de Xinu, cómo implementar sus <strong>natives</strong> en C y cómo compilar y desplegar una app.</p>
+<p>La JVM no es una JVM de Oracle: es un intérprete de bytecodes con una tabla de funciones C. No hay JNI, no hay class loader, no hay GC y no hay reflexión.</p>
+<hr>
+<nav class="toc"><h2>Índice</h2><ul><li class="l2"><a href="#1-arquitectura-de-una-librería">1. Arquitectura de una librería</a></li><li class="l2"><a href="#2-convención-de-pila">2. Convención de pila</a></li><li class="l3"><a href="#21-funciones-de-pila">2.1 Funciones de pila</a></li><li class="l2"><a href="#3-ejemplo-completo-esp32p4milib">3. Ejemplo completo: esp32p4.MiLib</a></li><li class="l3"><a href="#31-java">3.1 Java</a></li><li class="l3"><a href="#32-c">3.2 C</a></li><li class="l3"><a href="#33-registrar-en-java_libc">3.3 Registrar en java_lib.c</a></li><li class="l3"><a href="#34-añadir-al-build">3.4 Añadir al build</a></li><li class="l3"><a href="#35-app-java">3.5 App Java</a></li><li class="l2"><a href="#4-cómo-añadir-una-librería-a-java_lib">4. Cómo añadir una librería a java_lib</a></li><li class="l3"><a href="#41-native-nueva">4.1 Native nueva</a></li><li class="l3"><a href="#42-solo-java-sin-native">4.2 Solo Java (sin native)</a></li><li class="l2"><a href="#5-tipos-y-conversiones">5. Tipos y conversiones</a></li><li class="l2"><a href="#6-memoria-y-gc">6. Memoria y GC</a></li><li class="l2"><a href="#7-depuración">7. Depuración</a></li><li class="l3"><a href="#71-el-native-no-se-llama">7.1 El native no se llama</a></li><li class="l3"><a href="#72-el-native-devuelve-basura">7.2 El native devuelve basura</a></li><li class="l3"><a href="#73-la-jvm-muere">7.3 La JVM muere</a></li><li class="l3"><a href="#74-java-no-se-pudo-abrir">7.4 java: no se pudo abrir</a></li><li class="l2"><a href="#8-natives-existentes">8. Natives existentes</a></li><li class="l2"><a href="#9-makefile-de-app">9. Makefile de app</a></li><li class="l2"><a href="#10-checklist">10. Checklist</a></li><li class="l2"><a href="#11-referencias">11. Referencias</a></li></ul></nav>
+<h2 id="1-arquitectura-de-una-librería">1. Arquitectura de una librería</h2>
+<pre><code class="lang-text">Java                       C
+┌────────────────────┐     ┌─────────────────────────────┐
+│ esp32p4/MiLib.java │     │ device/jvm/native_milib.c   │
+│ public static      │     │ int mi_suma(StackFrame *,   │
+│ native int suma(...)│     │   SimpleConstantPool *,     │
+│                    │     │   char *type)               │
+└─────────┬──────────┘     └──────────────┬──────────────┘
+          │                               │
+          │ compila                       │ registra
+          ▼                               ▼
+   MiLib.class                    jvm/java_lib.c
+   /java/esp32p4/MiLib.class      {&quot;esp32p4/MiLib&quot;, &quot;suma&quot;, mi_suma}</code></pre>
+<p>El bytecode <code>invokestatic</code> busca la clase y el método en la tabla <code>method_table[]</code>. Si los encuentra, llama a la función C. Si no, intenta resolverlo como método Java normal.</p>
+<hr>
+<h2 id="2-convención-de-pila">2. Convención de pila</h2>
+<p>La JVM empuja los argumentos de izquierda a derecha. El <strong>último argumento está en la cima</strong> de la pila.</p>
+<p>Para:</p>
+<pre><code class="lang-java">public static native int suma(int a, int b);</code></pre>
+<p>la pila contiene, de abajo arriba:</p>
+<pre><code class="lang-text">[ a ][ b ]</code></pre>
+<p>El native debe hacer:</p>
+<pre><code class="lang-c">int b = popInt(stack);   /* último */
+int a = popInt(stack);   /* primero */
+pushInt(stack, a + b);</code></pre>
+<p>Para un método de instancia, el <code>this</code> es el primer argumento y queda en el fondo. Para <code>String</code>, usa <code>jvm_pop_text()</code> en lugar de <code>popInt()</code>.</p>
+<h3 id="21-funciones-de-pila">2.1 Funciones de pila</h3>
+<table>
+<thead><tr><th>Función</th><th>Uso</th></tr></thead>
+<tbody>
+<tr><td><code>popInt(stack)</code></td><td>Saca un <code>int</code></td></tr>
+<tr><td><code>popLong(stack)</code></td><td>Saca un <code>long long</code></td></tr>
+<tr><td><code>popFloat(stack)</code></td><td>Saca un <code>float</code></td></tr>
+<tr><td><code>popDouble(stack)</code></td><td>Saca un <code>double</code></td></tr>
+<tr><td><code>popEntry(stack)</code></td><td>Saca una entrada sin convertir</td></tr>
+<tr><td><code>pushInt(stack, v)</code></td><td>Empuja un <code>int</code></td></tr>
+<tr><td><code>pushLong</code>, <code>pushFloat</code>, <code>pushDouble</code></td><td>Empujan el tipo correspondiente</td></tr>
+<tr><td><code>pushRef(stack, v)</code></td><td>Empuja una referencia del pool</td></tr>
+<tr><td><code>pushObj(stack, v)</code></td><td>Empuja una referencia del heap</td></tr>
+<tr><td><code>jvm_pop_text(stack, p, buf, max)</code></td><td>Saca y resuelve un texto (REF/OBJ/INT/FLOAT)</td></tr>
+<tr><td><code>heap_array_load(ref, idx)</code></td><td>Lee un array</td></tr>
+<tr><td><code>heap_array_store(ref, idx, v)</code></td><td>Escribe un array</td></tr>
+<tr><td><code>heap_new_string(s)</code></td><td>Crea un String en el heap</td></tr>
+<tr><td><code>heap_string_text(ref)</code></td><td>Texto de un String</td></tr>
+</tbody></table>
+<hr>
+<h2 id="3-ejemplo-completo-esp32p4milib">3. Ejemplo completo: <code>esp32p4.MiLib</code></h2>
+<h3 id="31-java">3.1 Java</h3>
+<p>Crea <code>jvm/lib/esp32p4/MiLib.java</code>:</p>
+<pre><code class="lang-java">package esp32p4;
+
+/**
+ * Librería de ejemplo: suma, saludo y lectura de un GPIO.
+ */
+public class MiLib {
+    public static native int suma(int a, int b);
+    public static native String saludo(String nombre);
+    public static native int leerGpio(int pin);
+}</code></pre>
+<p>Compila:</p>
+<pre><code class="lang-sh">cd /home/daniel/xinu-s3-amp/jvm
+javac --release 8 -d dist/java lib/esp32p4/MiLib.java</code></pre>
+<p>El <code>.class</code> queda en <code>jvm/dist/java/esp32p4/MiLib.class</code>.</p>
+<h3 id="32-c">3.2 C</h3>
+<p>Crea <code>device/jvm/native_milib.c</code>:</p>
+<pre><code class="lang-c">/*
+ * native_milib.c — natives de esp32p4.MiLib.
+ *
+ * Convención: el último argumento está en la cima de la pila.
+ */
+#include &lt;kernel.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+
+#include &quot;simple_jvm.h&quot;
+#include &quot;java_lib.h&quot;
+
+int esp32p4_milib_suma(StackFrame *stack, SimpleConstantPool *p, char *type)
+{
+    int b = popInt(stack);
+    int a = popInt(stack);
+
+    (void) p;
+    (void) type;
+    pushInt(stack, a + b);
+    return 0;
+}
+
+int esp32p4_milib_saludo(StackFrame *stack, SimpleConstantPool *p, char *type)
+{
+    char nombre[128];
+    char salida[160];
+
+    (void) type;
+    jvm_pop_text(stack, p, nombre, (int) sizeof(nombre));
+    snprintf(salida, sizeof(salida), &quot;Hola, %s&quot;, nombre);
+    pushObj(stack, heap_new_string(salida));
+    return 0;
+}
+
+int esp32p4_milib_leerGpio(StackFrame *stack, SimpleConstantPool *p, char *type)
+{
+    int pin = popInt(stack);
+
+    (void) p;
+    (void) type;
+    pushInt(stack, (int) xt_gpio_get_level((uint) pin));
+    return 0;
+}</code></pre>
+<p>Incluye <code>&lt;xtensa.h&gt;</code> si usas <code>xt_gpio_get_level</code>.</p>
+<h3 id="33-registrar-en-java_libc">3.3 Registrar en <code>java_lib.c</code></h3>
+<p>Añade los <code>extern</code>:</p>
+<pre><code class="lang-c">extern int esp32p4_milib_suma(StackFrame *, SimpleConstantPool *, char *);
+extern int esp32p4_milib_saludo(StackFrame *, SimpleConstantPool *, char *);
+extern int esp32p4_milib_leerGpio(StackFrame *, SimpleConstantPool *, char *);</code></pre>
+<p>Y las entradas en <code>method_table[]</code>:</p>
+<pre><code class="lang-c">{&quot;esp32p4/MiLib&quot;, &quot;suma&quot;,      esp32p4_milib_suma},
+{&quot;esp32p4/MiLib&quot;, &quot;saludo&quot;,    esp32p4_milib_saludo},
+{&quot;esp32p4/MiLib&quot;, &quot;leerGpio&quot;,  esp32p4_milib_leerGpio},</code></pre>
+<p>La clave es <code>paquete/Clase</code> con <code>/</code>, no con <code>.</code>.</p>
+<h3 id="34-añadir-al-build">3.4 Añadir al build</h3>
+<p>Edita <code>device/jvm/Makerules</code>:</p>
+<pre><code class="lang-make">C_FILES += jvm_io_target.c native_hw.c native_io.c native_fat.c native_sys.c \
+           native_lvgl.c native_net.c native_milib.c jvmglue.c</code></pre>
+<p>Recompila el kernel:</p>
+<pre><code class="lang-sh">cd /home/daniel/xinu-s3-amp
+make kernel S3_CONFIG=platforms/esp32s3/xinu.conf</code></pre>
+<h3 id="35-app-java">3.5 App Java</h3>
+<p>Crea <code>apps/java/MiApp/MiApp.java</code>:</p>
+<pre><code class="lang-java">import esp32p4.MiLib;
+
+public class MiApp {
+    public static void main(String[] args) {
+        int r = MiLib.suma(2, 3);
+        System.out.println(&quot;2 + 3 = &quot; + r);
+        System.out.println(MiLib.saludo(&quot;Xinu&quot;));
+        System.out.println(&quot;GPIO0 = &quot; + MiLib.leerGpio(0));
+    }
+}</code></pre>
+<p>Crea <code>apps/java/MiApp/Makefile</code>:</p>
+<pre><code class="lang-make">APP      = MiApp
+JAVAC   ?= javac
+BUILD   ?= build
+RELEASE  = 8
+LIB_DIR  = ../../../jvm/lib
+LIB_SRC  = $(LIB_DIR)/esp32p4/MiLib.java
+
+all: $(BUILD)/$(APP).class
+
+$(BUILD)/$(APP).class: $(APP).java $(LIB_SRC)
+	@mkdir -p $(BUILD)
+	@$(JAVAC) --release $(RELEASE) -Xlint:-options -d $(BUILD) $(LIB_SRC)
+	@$(JAVAC) --release $(RELEASE) -Xlint:-options -cp $(BUILD) -d $(BUILD) $(APP).java
+
+clean:
+	@$(RM) -r $(BUILD)</code></pre>
+<p>Compila y copia a la SD:</p>
+<pre><code class="lang-sh">cd /home/daniel/xinu-s3-amp
+./jvm/build-examples.sh --to /ruta/a/la/sd</code></pre>
+<p>La SD debe quedar así:</p>
+<pre><code class="lang-text">/java/MiApp.class
+/java/esp32p4/MiLib.class
+/java/esp32p4/HW.class
+...</code></pre>
+<p>Ejecuta:</p>
+<pre><code class="lang-text">xsh$ java MiApp</code></pre>
+<hr>
+<h2 id="4-cómo-añadir-una-librería-a-java_lib">4. Cómo añadir una librería a <code>java_lib</code></h2>
+<p>Hay dos caminos:</p>
+<h3 id="41-native-nueva">4.1 Native nueva</h3>
+<ol><li>Crea <code>jvm/lib/esp32p4/MiLib.java</code>.</li><li>Crea <code>device/jvm/native_milib.c</code>.</li><li>Declara el <code>extern</code> en <code>jvm/java_lib.c</code>.</li><li>Añade la entrada a <code>method_table[]</code>.</li><li>Añade el <code>.c</code> a <code>device/jvm/Makerules</code>.</li><li>Recompila el kernel.</li><li>Compila la clase y cópiala a <code>/java/esp32p4/</code>.</li></ol>
+<h3 id="42-solo-java-sin-native">4.2 Solo Java (sin native)</h3>
+<p>Si la librería no necesita hardware, puedes escribirla solo en Java y compilarla como cualquier clase. La JVM ejecutará sus métodos normalmente. No hace falta tocar <code>java_lib.c</code>.</p>
+<hr>
+<h2 id="5-tipos-y-conversiones">5. Tipos y conversiones</h2>
+<table>
+<thead><tr><th>Java</th><th>C</th><th>Nota</th></tr></thead>
+<tbody>
+<tr><td><code>int</code></td><td><code>int</code></td><td>32 bits</td></tr>
+<tr><td><code>long</code></td><td><code>long long</code></td><td>Usa <code>popLong</code>/<code>pushLong</code></td></tr>
+<tr><td><code>float</code></td><td><code>float</code></td><td>Usa <code>popFloat</code>/<code>pushFloat</code></td></tr>
+<tr><td><code>double</code></td><td><code>double</code></td><td>Usa <code>popDouble</code>/<code>pushDouble</code></td></tr>
+<tr><td><code>boolean</code></td><td><code>int</code></td><td>0/1</td></tr>
+<tr><td><code>String</code></td><td><code>char *</code></td><td><code>jvm_pop_text</code> / <code>heap_new_string</code></td></tr>
+<tr><td><code>int[]</code></td><td>ref de heap</td><td><code>heap_array_load/store</code></td></tr>
+<tr><td><code>byte[]</code></td><td>ref de heap</td><td><code>heap_array_load/store</code></td></tr>
+<tr><td>objeto</td><td>ref de heap</td><td><code>heap_object_get/put</code></td></tr>
+</tbody></table>
+<p>No hay <code>Object</code>, <code>Class</code>, <code>Throwable</code> ni <code>synchronized</code> completo. Si necesitas un objeto, usa una clase Java normal con campos; la JVM la representa como un slot con <code>nfields</code>.</p>
+<hr>
+<h2 id="6-memoria-y-gc">6. Memoria y GC</h2>
+<p>No hay GC. Los objetos que creas con <code>new</code>, <code>String</code>, arrays o <code>StringBuilder</code> ocupan slots del heap hasta que termina la tarea. La JVM tiene <code>JVM_HEAP_SLOTS = 2048</code>.</p>
+<p>Consecuencias para un native:</p>
+<ul><li>no devuelvas punteros a memoria local del native;</li><li>si devuelves un String, usa <code>heap_new_string()</code> (copia);</li><li>no liberes a mano un objeto del heap: lo hará <code>jvm_state_free()</code> al final;</li><li>evita crear objetos en bucles largos;</li><li>no guardes punteros del heap en variables globales: la instancia es por</li></ul>
+<p>tarea.</p>
+<hr>
+<h2 id="7-depuración">7. Depuración</h2>
+<h3 id="71-el-native-no-se-llama">7.1 El native no se llama</h3>
+<p>Comprueba:</p>
+<ul><li>el nombre de clase en la tabla usa <code>/</code> (<code>esp32p4/MiLib</code>);</li><li>el nombre del método coincide exactamente (<code>suma</code>, no <code>Suma</code>);</li><li>el <code>.class</code> está en <code>/java/esp32p4/MiLib.class</code>;</li><li>el <code>.c</code> está en <code>device/jvm/Makerules</code>;</li><li>recompilaste el kernel después de registrar el native.</li></ul>
+<h3 id="72-el-native-devuelve-basura">7.2 El native devuelve basura</h3>
+<p>Suele ser orden de <code>pop</code>:</p>
+<pre><code class="lang-java">MiLib.suma(2, 3)</code></pre>
+<p>La pila es <code>[2][3]</code>; el primer <code>popInt</code> devuelve <code>3</code>, el segundo <code>2</code>. Si haces <code>a + b</code>, da igual; si restas, no.</p>
+<h3 id="73-la-jvm-muere">7.3 La JVM muere</h3>
+<p>Mira la consola:</p>
+<pre><code class="lang-text">[jvm] heap: slots agotados (2048)
+[jvm] heap: OOM creando ...
+[jvm] heap: referencia invalida ...</code></pre>
+<p>No hay recuperación: <code>jvm_exit()</code> mata la tarea. Reduce asignaciones o aumenta <code>JVM_HEAP_SLOTS</code> (y el tamaño del estado en PSRAM).</p>
+<h3 id="74-java-no-se-pudo-abrir">7.4 <code>java: no se pudo abrir</code></h3>
+<p>La FAT no está montada o la clase no está en <code>/java</code>. Prueba:</p>
+<pre><code class="lang-text">fat mount
+ls /java
+java MiApp</code></pre>
+<hr>
+<h2 id="8-natives-existentes">8. Natives existentes</h2>
+<table>
+<thead><tr><th>Clase</th><th>Métodos</th><th>Fichero</th></tr></thead>
+<tbody>
+<tr><td><code>esp32p4.HW</code></td><td><code>delay</code>, <code>millis</code>, <code>gpioWrite</code>, <code>gpioRead</code>, <code>sound</code></td><td><code>device/jvm/native_hw.c</code></td></tr>
+<tr><td><code>esp32p4.RGB</code></td><td><code>set</code>, <code>off</code>, <code>get</code></td><td><code>device/jvm/native_hw.c</code></td></tr>
+<tr><td><code>esp32p4.IO</code></td><td><code>print</code>, <code>println</code>, <code>readChar</code>, <code>strLen</code>, <code>strAt</code>, <code>printBuf</code></td><td><code>device/jvm/native_io.c</code></td></tr>
+<tr><td><code>esp32p4.FAT</code></td><td><code>open</code>, <code>close</code>, <code>read</code>, <code>write</code>, <code>seek</code>, <code>tell</code>, <code>eof</code>, <code>readLine</code>, <code>writeString</code>, <code>readAll</code>, <code>writeAll</code>, <code>appendString</code>, <code>exists</code>, <code>isDirectory</code>, <code>length</code>, <code>delete</code>, <code>mkdir</code>, <code>rmdir</code>, <code>list</code></td><td><code>device/jvm/native_fat.c</code></td></tr>
+<tr><td><code>esp32p4.Sys</code></td><td><code>run</code>, <code>runHere</code>, <code>kill</code>, <code>sleep</code>, <code>yield</code>, <code>tid</code></td><td><code>device/jvm/native_sys.c</code></td></tr>
+<tr><td><code>esp32p4.LVGL</code></td><td><code>init</code>, <code>screen</code>, <code>clear</code>, <code>label</code>, <code>button</code>, <code>rect</code>, <code>setText</code>, <code>setTextFmt</code>, <code>setPos</code>, <code>setSize</code>, <code>setColor</code>, <code>tick</code>, <code>pollEvent</code>, <code>eventWidget</code>, <code>del</code>, <code>img</code>, <code>getWidth</code>, <code>getHeight</code>, <code>screenWidth</code>, <code>screenHeight</code></td><td><code>device/jvm/native_lvgl.c</code></td></tr>
+<tr><td><code>esp32p4.Net</code></td><td><code>ip</code>, <code>isConnected</code></td><td><code>device/jvm/native_net.c</code></td></tr>
+<tr><td><code>java.lang</code></td><td><code>Math</code>, <code>Integer</code>, <code>String</code>, <code>Boolean</code>, <code>Float</code>, <code>Character</code></td><td><code>jvm/java_std.c</code></td></tr>
+</tbody></table>
+<p><code>esp32p4.PMIC</code> no existe en el S3. <code>Thread.sleep(long)</code> se mapea a <code>esp32p4.Sys.sleep(int)</code>.</p>
+<hr>
+<h2 id="9-makefile-de-app">9. Makefile de app</h2>
+<p>Plantilla mínima:</p>
+<pre><code class="lang-make">APP      = MiApp
+JAVAC   ?= javac
+BUILD   ?= build
+RELEASE  = 8
+LIB_DIR  = ../../../jvm/lib
+LIB_SRC  = $(LIB_DIR)/esp32p4/MiLib.java
+
+all: $(BUILD)/$(APP).class
+
+$(BUILD)/$(APP).class: $(APP).java $(LIB_SRC)
+	@mkdir -p $(BUILD)
+	@$(JAVAC) --release $(RELEASE) -Xlint:-options -d $(BUILD) $(LIB_SRC)
+	@$(JAVAC) --release $(RELEASE) -Xlint:-options -cp $(BUILD) -d $(BUILD) $(APP).java
+
+clean:
+	@$(RM) -r $(BUILD)</code></pre>
+<p>Para varias librerías, añádelas a <code>LIB_SRC</code>.</p>
+<hr>
+<h2 id="10-checklist">10. Checklist</h2>
+<ul><li>[ ] <code>.java</code> de la librería en <code>jvm/lib/esp32p4/</code></li><li>[ ] <code>.c</code> del native en <code>device/jvm/</code></li><li>[ ] <code>extern</code> en <code>jvm/java_lib.c</code></li><li>[ ] entrada en <code>method_table[]</code></li><li>[ ] <code>.c</code> en <code>device/jvm/Makerules</code></li><li>[ ] <code>make kernel</code></li><li>[ ] <code>.class</code> compilada y copiada a <code>/java/esp32p4/</code></li><li>[ ] app compilada y copiada a <code>/java/</code></li><li>[ ] <code>fat mount</code>, <code>ls /java</code>, <code>java MiApp</code></li></ul>
+<hr>
+<h2 id="11-referencias">11. Referencias</h2>
+<ul><li><code>jvm/simple_jvm.h</code>: tipos, <code>StackFrame</code>, heap, límites.</li><li><code>jvm/java_lib.c</code>: tabla de natives.</li><li><code>jvm/java_std.c</code>: natives de <code>java.lang</code>.</li><li><code>device/jvm/native_*.c</code>: ejemplos reales.</li><li><code>device/jvm/Makerules</code>: lista de fuentes del target.</li><li><code>jvm/build-examples.sh</code>: compilación de librerías, tests y apps.</li><li><code>docs/MANUAL-AMP.md</code>: arquitectura del kernel y de la JVM.</li></ul>
+</main>
+</body>
+</html>

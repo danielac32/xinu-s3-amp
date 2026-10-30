@@ -1,0 +1,892 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inventario del árbol · Xinu ESP32-S3</title>
+<style>
+:root{--bg:#0a0f1d;--card:#131d33;--line:#26344f;--txt:#e8eef7;--muted:#a9b8cf;
+--dim:#7c8ca6;--acc:#6ea8fe;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);
+font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,Ubuntu,sans-serif}
+main{max-width:58rem;margin:0 auto;padding:2rem 1.2rem 5rem}
+a{color:var(--acc);text-decoration:none}a:hover{text-decoration:underline}
+h1{font-size:2rem;line-height:1.2;margin:.2rem 0 .4rem;letter-spacing:-.02em}
+h2{font-size:1.35rem;margin:2.4rem 0 .6rem;padding-top:.6rem;border-top:1px solid var(--line)}
+h3{font-size:1.08rem;margin:1.7rem 0 .4rem;color:#dbe7fa}
+h4{font-size:.98rem;margin:1.2rem 0 .3rem}
+p{margin:.65rem 0;color:#d5e0f0}
+code{font-family:var(--mono);background:#0b1322;border:1px solid #1f2c45;border-radius:4px;
+padding:.08em .35em;font-size:.88em}
+pre{background:#080d18;border:1px solid var(--line);border-radius:10px;padding:1rem;overflow:auto;
+font-size:.84rem;line-height:1.55}
+pre code{background:none;border:0;padding:0;font-size:inherit}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid #1e2b44;vertical-align:top}
+th{color:var(--dim);font-size:.78rem;text-transform:uppercase;letter-spacing:.06em}
+blockquote{margin:1rem 0;padding:.7rem 1rem;border-left:3px solid var(--acc);background:#0f1a2e;
+border-radius:0 8px 8px 0;color:var(--muted)}
+hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+ul,ol{padding-left:1.4rem}li{margin:.25rem 0;color:#d5e0f0}
+.back{display:inline-block;margin-bottom:1rem;font-size:.9rem;color:var(--muted);
+border:1px solid var(--line);border-radius:8px;padding:.4rem .7rem}
+.back:hover{color:var(--txt);border-color:var(--acc)}
+.toc{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:1rem 1.2rem;margin:1.6rem 0}
+.toc h2{border:0;margin:.1rem 0 .5rem;padding:0;font-size:1rem}
+.toc ul{list-style:none;padding:0;margin:0;columns:2;column-gap:2rem}
+.toc li{margin:.15rem 0;font-size:.9rem}
+.toc .l3{padding-left:1rem;color:var(--dim)}
+@media(max-width:720px){.toc ul{columns:1}}
+</style>
+</head>
+<body>
+<main>
+<a class="back" href="index.html">← Volver al dashboard</a>
+<nav class="toc"><h2>Índice</h2><ul></ul></nav>
+<h1 id="inventario-del-árbol-xinu-amp">Inventario del árbol Xinu AMP</h1>
+<p>Generado por <code>tools/gen_inventory.py</code>. No editar a mano: se regenera con <code>make inventory</code>.</p>
+<p>El inventario excluye <code>.git</code>, artefactos de build (<code>*.o</code>, <code>*.d</code>, <code>*.elf</code>, <code>*.img</code>, <code>*.class</code>) y directorios temporales. Incluye todo el código fuente, cabeceras, scripts, configuración y documentación.</p>
+<table>
+<thead><tr><th>Fichero</th><th>Tipo</th><th>Rol</th></tr></thead>
+<tbody>
+<tr><td><code>.gitignore</code></td><td><code>sin extensión</code></td><td>Fichero de configuración o soporte</td></tr>
+<tr><td><code>AUTHORS</code></td><td><code>sin extensión</code></td><td>Fichero de configuración o soporte</td></tr>
+<tr><td><code>LICENSE</code></td><td><code>sin extensión</code></td><td>Fichero de configuración o soporte</td></tr>
+<tr><td><code>Makefile</code></td><td><code>sin extensión</code></td><td>Wrapper raíz: kernel, loader, web, docs, java, flash</td></tr>
+<tr><td><code>PENDIENTES.md</code></td><td><code>md</code></td><td>Documentación</td></tr>
+<tr><td><code>README.md</code></td><td><code>md</code></td><td>Documentación</td></tr>
+<tr><td><code>README_AMP.md</code></td><td><code>md</code></td><td>Estado y contrato del port AMP</td></tr>
+<tr><td><code>README_BUILD.md</code></td><td><code>md</code></td><td>Guía de compilación y configuración</td></tr>
+<tr><td><code>README_ESP32S3.md</code></td><td><code>md</code></td><td>Hardware, periféricos y resultados del port</td></tr>
+<tr><td><code>env.sh</code></td><td><code>sh</code></td><td>Carga el toolchain xtensa-esp32s3-elf en PATH</td></tr>
+<tr><td><code>apps/Makerules</code></td><td><code>sin extensión</code></td><td>App o comando auxiliar</td></tr>
+<tr><td><code>apps/date.c</code></td><td><code>c</code></td><td>App o comando auxiliar</td></tr>
+<tr><td><code>apps/rdate.c</code></td><td><code>c</code></td><td>App o comando auxiliar</td></tr>
+<tr><td><code>apps/java/ColorShow/ColorShow.java</code></td><td><code>java</code></td><td>App o comando auxiliar</td></tr>
+<tr><td><code>apps/java/ColorShow/Makefile</code></td><td><code>sin extensión</code></td><td>App o comando auxiliar</td></tr>
+<tr><td><code>apps/java/DelayDemo/DelayDemo.java</code></td><td><code>java</code></td><td>App o comando auxiliar</td></tr>
+<tr><td><code>apps/java/DelayDemo/Makefile</code></td><td><code>sin extensión</code></td><td>App o comando auxiliar</td></tr>
+<tr><td><code>apps/java/ImgDemo/ImgDemo.java</code></td><td><code>java</code></td><td>App o comando auxiliar</td></tr>
+<tr><td><code>apps/java/ImgDemo/Makefile</code></td><td><code>sin extensión</code></td><td>App o comando auxiliar</td></tr>
+<tr><td><code>apps/java/LedBlink/LedBlink.java</code></td><td><code>java</code></td><td>App o comando auxiliar</td></tr>
+<tr><td><code>apps/java/LedBlink/Makefile</code></td><td><code>sin extensión</code></td><td>App o comando auxiliar</td></tr>
+<tr><td><code>apps/java/LvglDemo/LvglDemo.java</code></td><td><code>java</code></td><td>App o comando auxiliar</td></tr>
+<tr><td><code>apps/java/LvglDemo/Makefile</code></td><td><code>sin extensión</code></td><td>App o comando auxiliar</td></tr>
+<tr><td><code>apps/java/Menu/Makefile</code></td><td><code>sin extensión</code></td><td>App o comando auxiliar</td></tr>
+<tr><td><code>apps/java/Menu/Menu.java</code></td><td><code>java</code></td><td>App o comando auxiliar</td></tr>
+<tr><td><code>apps/java/RgbDemo/Makefile</code></td><td><code>sin extensión</code></td><td>App o comando auxiliar</td></tr>
+<tr><td><code>apps/java/RgbDemo/RgbDemo.java</code></td><td><code>java</code></td><td>App o comando auxiliar</td></tr>
+<tr><td><code>apps/java/WordQuest/Makefile</code></td><td><code>sin extensión</code></td><td>App o comando auxiliar</td></tr>
+<tr><td><code>apps/java/WordQuest/WordQuest.java</code></td><td><code>java</code></td><td>App o comando auxiliar</td></tr>
+<tr><td><code>apps/java/WordQuest/save.dat</code></td><td><code>dat</code></td><td>App o comando auxiliar</td></tr>
+<tr><td><code>compile/Doxyfile</code></td><td><code>sin extensión</code></td><td>Build, configuración o linker</td></tr>
+<tr><td><code>compile/Doxymain.c</code></td><td><code>c</code></td><td>Build, configuración o linker</td></tr>
+<tr><td><code>compile/Makefile</code></td><td><code>sin extensión</code></td><td>Build real del kernel y targets s3-*</td></tr>
+<tr><td><code>compile/mkvers.sh</code></td><td><code>sh</code></td><td>Build, configuración o linker</td></tr>
+<tr><td><code>compile/version</code></td><td><code>sin extensión</code></td><td>Build, configuración o linker</td></tr>
+<tr><td><code>compile/vn</code></td><td><code>sin extensión</code></td><td>Build, configuración o linker</td></tr>
+<tr><td><code>compile/arch/README</code></td><td><code>sin extensión</code></td><td>Build, configuración o linker</td></tr>
+<tr><td><code>compile/arch/xtensa/platformVars</code></td><td><code>sin extensión</code></td><td>Build, configuración o linker</td></tr>
+<tr><td><code>compile/config/Makefile</code></td><td><code>sin extensión</code></td><td>Build, configuración o linker</td></tr>
+<tr><td><code>compile/config/config</code></td><td><code>sin extensión</code></td><td>Build, configuración o linker</td></tr>
+<tr><td><code>compile/config/config.c</code></td><td><code>c</code></td><td>Build, configuración o linker</td></tr>
+<tr><td><code>compile/config/parse.c</code></td><td><code>c</code></td><td>Build, configuración o linker</td></tr>
+<tr><td><code>compile/config/parse.y</code></td><td><code>y</code></td><td>Build, configuración o linker</td></tr>
+<tr><td><code>compile/config/scan.l</code></td><td><code>l</code></td><td>Build, configuración o linker</td></tr>
+<tr><td><code>compile/config/y.tab.h</code></td><td><code>h</code></td><td>Build, configuración o linker</td></tr>
+<tr><td><code>compile/data/Makerules</code></td><td><code>sin extensión</code></td><td>Build, configuración o linker</td></tr>
+<tr><td><code>compile/platforms/esp32s3/ld-amp.script</code></td><td><code>script</code></td><td>Copia de referencia del linker AMP</td></tr>
+<tr><td><code>compile/platforms/esp32s3/platformVars</code></td><td><code>sin extensión</code></td><td>Flags, componentes y drivers</td></tr>
+<tr><td><code>compile/platforms/esp32s3/xinu-test.conf</code></td><td><code>conf</code></td><td>Configuración de prueba sin periféricos</td></tr>
+<tr><td><code>compile/platforms/esp32s3/xinu.conf</code></td><td><code>conf</code></td><td>Configuración completa de la placa</td></tr>
+<tr><td><code>compile/scripts/make-arm-cross-compiler</code></td><td><code>sin extensión</code></td><td>Build, configuración o linker</td></tr>
+<tr><td><code>device/Doxygroup.c</code></td><td><code>c</code></td><td>Driver/dispositivo: Doxygroup.c</td></tr>
+<tr><td><code>device/button/Makerules</code></td><td><code>sin extensión</code></td><td>Driver/dispositivo: button</td></tr>
+<tr><td><code>device/button/buttonClose.c</code></td><td><code>c</code></td><td>Driver/dispositivo: button</td></tr>
+<tr><td><code>device/button/buttonControl.c</code></td><td><code>c</code></td><td>Driver/dispositivo: button</td></tr>
+<tr><td><code>device/button/buttonGetc.c</code></td><td><code>c</code></td><td>Driver/dispositivo: button</td></tr>
+<tr><td><code>device/button/buttonInit.c</code></td><td><code>c</code></td><td>Driver/dispositivo: button</td></tr>
+<tr><td><code>device/button/buttonInterrupt.c</code></td><td><code>c</code></td><td>Driver/dispositivo: button</td></tr>
+<tr><td><code>device/button/buttonOpen.c</code></td><td><code>c</code></td><td>Driver/dispositivo: button</td></tr>
+<tr><td><code>device/button/buttonPressed.c</code></td><td><code>c</code></td><td>Driver/dispositivo: button</td></tr>
+<tr><td><code>device/button/buttonPutc.c</code></td><td><code>c</code></td><td>Driver/dispositivo: button</td></tr>
+<tr><td><code>device/button/buttonRead.c</code></td><td><code>c</code></td><td>Driver/dispositivo: button</td></tr>
+<tr><td><code>device/button/buttonWrite.c</code></td><td><code>c</code></td><td>Driver/dispositivo: button</td></tr>
+<tr><td><code>device/jvm/Makerules</code></td><td><code>sin extensión</code></td><td>Fuentes del componente JVM del target</td></tr>
+<tr><td><code>device/jvm/jvm_io_target.c</code></td><td><code>c</code></td><td>Seam de plataforma: FAT, PSRAM y kill</td></tr>
+<tr><td><code>device/jvm/jvmglue.c</code></td><td><code>c</code></td><td>jvmState, jvmTask y jvm_run_path</td></tr>
+<tr><td><code>device/jvm/native_fat.c</code></td><td><code>c</code></td><td>Natives esp32p4.FAT</td></tr>
+<tr><td><code>device/jvm/native_hw.c</code></td><td><code>c</code></td><td>Natives esp32p4.HW y esp32p4.RGB</td></tr>
+<tr><td><code>device/jvm/native_io.c</code></td><td><code>c</code></td><td>Natives esp32p4.IO</td></tr>
+<tr><td><code>device/jvm/native_lvgl.c</code></td><td><code>c</code></td><td>Natives esp32p4.LVGL</td></tr>
+<tr><td><code>device/jvm/native_net.c</code></td><td><code>c</code></td><td>Natives esp32p4.Net</td></tr>
+<tr><td><code>device/jvm/native_sys.c</code></td><td><code>c</code></td><td>Natives esp32p4.Sys</td></tr>
+<tr><td><code>device/memtty/Makerules</code></td><td><code>sin extensión</code></td><td>Driver/dispositivo: memtty</td></tr>
+<tr><td><code>device/memtty/memtty.c</code></td><td><code>c</code></td><td>Dispositivo de captura del terminal web</td></tr>
+<tr><td><code>device/nam/Makerules</code></td><td><code>sin extensión</code></td><td>Driver/dispositivo: nam</td></tr>
+<tr><td><code>device/nam/mount.c</code></td><td><code>c</code></td><td>Driver/dispositivo: nam</td></tr>
+<tr><td><code>device/nam/naminit.c</code></td><td><code>c</code></td><td>Driver/dispositivo: nam</td></tr>
+<tr><td><code>device/nam/nammap.c</code></td><td><code>c</code></td><td>Driver/dispositivo: nam</td></tr>
+<tr><td><code>device/nam/namopen.c</code></td><td><code>c</code></td><td>Driver/dispositivo: nam</td></tr>
+<tr><td><code>device/raw/Doxygroup.c</code></td><td><code>c</code></td><td>Driver/dispositivo: raw</td></tr>
+<tr><td><code>device/raw/Makerules</code></td><td><code>sin extensión</code></td><td>Driver/dispositivo: raw</td></tr>
+<tr><td><code>device/raw/rawClose.c</code></td><td><code>c</code></td><td>Driver/dispositivo: raw</td></tr>
+<tr><td><code>device/raw/rawControl.c</code></td><td><code>c</code></td><td>Driver/dispositivo: raw</td></tr>
+<tr><td><code>device/raw/rawDemux.c</code></td><td><code>c</code></td><td>Driver/dispositivo: raw</td></tr>
+<tr><td><code>device/raw/rawInit.c</code></td><td><code>c</code></td><td>Driver/dispositivo: raw</td></tr>
+<tr><td><code>device/raw/rawOpen.c</code></td><td><code>c</code></td><td>Driver/dispositivo: raw</td></tr>
+<tr><td><code>device/raw/rawRead.c</code></td><td><code>c</code></td><td>Driver/dispositivo: raw</td></tr>
+<tr><td><code>device/raw/rawRecv.c</code></td><td><code>c</code></td><td>Driver/dispositivo: raw</td></tr>
+<tr><td><code>device/raw/rawSend.c</code></td><td><code>c</code></td><td>Driver/dispositivo: raw</td></tr>
+<tr><td><code>device/raw/rawWrite.c</code></td><td><code>c</code></td><td>Driver/dispositivo: raw</td></tr>
+<tr><td><code>device/rgb/Makerules</code></td><td><code>sin extensión</code></td><td>Driver/dispositivo: rgb</td></tr>
+<tr><td><code>device/rgb/rgbClose.c</code></td><td><code>c</code></td><td>Driver/dispositivo: rgb</td></tr>
+<tr><td><code>device/rgb/rgbControl.c</code></td><td><code>c</code></td><td>Driver/dispositivo: rgb</td></tr>
+<tr><td><code>device/rgb/rgbInit.c</code></td><td><code>c</code></td><td>Driver/dispositivo: rgb</td></tr>
+<tr><td><code>device/rgb/rgbOpen.c</code></td><td><code>c</code></td><td>Driver/dispositivo: rgb</td></tr>
+<tr><td><code>device/rgb/rgbRead.c</code></td><td><code>c</code></td><td>Driver/dispositivo: rgb</td></tr>
+<tr><td><code>device/rgb/rgbSet.c</code></td><td><code>c</code></td><td>Driver/dispositivo: rgb</td></tr>
+<tr><td><code>device/rgb/rgbWrite.c</code></td><td><code>c</code></td><td>Driver/dispositivo: rgb</td></tr>
+<tr><td><code>device/sd/Makerules</code></td><td><code>sin extensión</code></td><td>Driver/dispositivo: sd</td></tr>
+<tr><td><code>device/sd/sdCard.c</code></td><td><code>c</code></td><td>Driver/dispositivo: sd</td></tr>
+<tr><td><code>device/sd/sdClose.c</code></td><td><code>c</code></td><td>Driver/dispositivo: sd</td></tr>
+<tr><td><code>device/sd/sdControl.c</code></td><td><code>c</code></td><td>Driver/dispositivo: sd</td></tr>
+<tr><td><code>device/sd/sdGetc.c</code></td><td><code>c</code></td><td>Driver/dispositivo: sd</td></tr>
+<tr><td><code>device/sd/sdHost.c</code></td><td><code>c</code></td><td>Driver/dispositivo: sd</td></tr>
+<tr><td><code>device/sd/sdInit.c</code></td><td><code>c</code></td><td>Driver/dispositivo: sd</td></tr>
+<tr><td><code>device/sd/sdOpen.c</code></td><td><code>c</code></td><td>Driver/dispositivo: sd</td></tr>
+<tr><td><code>device/sd/sdPutc.c</code></td><td><code>c</code></td><td>Driver/dispositivo: sd</td></tr>
+<tr><td><code>device/sd/sdRead.c</code></td><td><code>c</code></td><td>Driver/dispositivo: sd</td></tr>
+<tr><td><code>device/sd/sdWrite.c</code></td><td><code>c</code></td><td>Driver/dispositivo: sd</td></tr>
+<tr><td><code>device/sd/sdhost.h</code></td><td><code>h</code></td><td>Driver/dispositivo: sd</td></tr>
+<tr><td><code>device/tcp/Doxygroup.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/Makerules</code></td><td><code>sin extensión</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpAlloc.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpAllocPassive.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpChksum.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpClose.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpControl.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpDemux.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpFree.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpGetc.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpInit.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpOpen.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpOpenActive.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpPutc.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpRead.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpRecv.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpRecvAck.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpRecvData.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpRecvListen.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpRecvOpts.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpRecvOther.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpRecvRtt.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpRecvSynsent.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpRecvValid.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpSend.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpSendAck.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpSendData.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpSendPersist.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpSendRst.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpSendRxt.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpSendSyn.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpSendWindow.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpSeqdiff.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpSetup.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpStat.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpTimer.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpTimerPurge.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpTimerRemain.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpTimerSched.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpTimerTrigger.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/tcp/tcpWrite.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tcp</td></tr>
+<tr><td><code>device/telnet/Doxygroup.c</code></td><td><code>c</code></td><td>Driver/dispositivo: telnet</td></tr>
+<tr><td><code>device/telnet/Makerules</code></td><td><code>sin extensión</code></td><td>Driver/dispositivo: telnet</td></tr>
+<tr><td><code>device/telnet/telnetAlloc.c</code></td><td><code>c</code></td><td>Driver/dispositivo: telnet</td></tr>
+<tr><td><code>device/telnet/telnetClose.c</code></td><td><code>c</code></td><td>Driver/dispositivo: telnet</td></tr>
+<tr><td><code>device/telnet/telnetControl.c</code></td><td><code>c</code></td><td>Driver/dispositivo: telnet</td></tr>
+<tr><td><code>device/telnet/telnetFlush.c</code></td><td><code>c</code></td><td>Driver/dispositivo: telnet</td></tr>
+<tr><td><code>device/telnet/telnetGetc.c</code></td><td><code>c</code></td><td>Driver/dispositivo: telnet</td></tr>
+<tr><td><code>device/telnet/telnetInit.c</code></td><td><code>c</code></td><td>Driver/dispositivo: telnet</td></tr>
+<tr><td><code>device/telnet/telnetOpen.c</code></td><td><code>c</code></td><td>Driver/dispositivo: telnet</td></tr>
+<tr><td><code>device/telnet/telnetPutc.c</code></td><td><code>c</code></td><td>Driver/dispositivo: telnet</td></tr>
+<tr><td><code>device/telnet/telnetRead.c</code></td><td><code>c</code></td><td>Driver/dispositivo: telnet</td></tr>
+<tr><td><code>device/telnet/telnetServer.c</code></td><td><code>c</code></td><td>Driver/dispositivo: telnet</td></tr>
+<tr><td><code>device/telnet/telnetWrite.c</code></td><td><code>c</code></td><td>Driver/dispositivo: telnet</td></tr>
+<tr><td><code>device/tft/Makerules</code></td><td><code>sin extensión</code></td><td>Driver/dispositivo: tft</td></tr>
+<tr><td><code>device/tft/tftClose.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tft</td></tr>
+<tr><td><code>device/tft/tftControl.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tft</td></tr>
+<tr><td><code>device/tft/tftGetc.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tft</td></tr>
+<tr><td><code>device/tft/tftHw.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tft</td></tr>
+<tr><td><code>device/tft/tftInit.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tft</td></tr>
+<tr><td><code>device/tft/tftOpen.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tft</td></tr>
+<tr><td><code>device/tft/tftPutc.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tft</td></tr>
+<tr><td><code>device/tft/tftRead.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tft</td></tr>
+<tr><td><code>device/tft/tftWrite.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tft</td></tr>
+<tr><td><code>device/tty/Doxygroup.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tty</td></tr>
+<tr><td><code>device/tty/Makerules</code></td><td><code>sin extensión</code></td><td>Driver/dispositivo: tty</td></tr>
+<tr><td><code>device/tty/ttyClose.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tty</td></tr>
+<tr><td><code>device/tty/ttyControl.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tty</td></tr>
+<tr><td><code>device/tty/ttyGetc.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tty</td></tr>
+<tr><td><code>device/tty/ttyInit.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tty</td></tr>
+<tr><td><code>device/tty/ttyOpen.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tty</td></tr>
+<tr><td><code>device/tty/ttyPutc.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tty</td></tr>
+<tr><td><code>device/tty/ttyRead.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tty</td></tr>
+<tr><td><code>device/tty/ttyWrite.c</code></td><td><code>c</code></td><td>Driver/dispositivo: tty</td></tr>
+<tr><td><code>device/uart/Doxygroup.c</code></td><td><code>c</code></td><td>Driver/dispositivo: uart</td></tr>
+<tr><td><code>device/uart/README</code></td><td><code>sin extensión</code></td><td>Driver/dispositivo: uart</td></tr>
+<tr><td><code>device/uart/kprintf.c</code></td><td><code>c</code></td><td>Driver/dispositivo: uart</td></tr>
+<tr><td><code>device/uart/kvprintf.c</code></td><td><code>c</code></td><td>Driver/dispositivo: uart</td></tr>
+<tr><td><code>device/uart/uartControl.c</code></td><td><code>c</code></td><td>Driver/dispositivo: uart</td></tr>
+<tr><td><code>device/uart/uartGetc.c</code></td><td><code>c</code></td><td>Driver/dispositivo: uart</td></tr>
+<tr><td><code>device/uart/uartInit.c</code></td><td><code>c</code></td><td>Driver/dispositivo: uart</td></tr>
+<tr><td><code>device/uart/uartPutc.c</code></td><td><code>c</code></td><td>Driver/dispositivo: uart</td></tr>
+<tr><td><code>device/uart/uartRead.c</code></td><td><code>c</code></td><td>Driver/dispositivo: uart</td></tr>
+<tr><td><code>device/uart/uartStat.c</code></td><td><code>c</code></td><td>Driver/dispositivo: uart</td></tr>
+<tr><td><code>device/uart/uartWrite.c</code></td><td><code>c</code></td><td>Driver/dispositivo: uart</td></tr>
+<tr><td><code>device/uart-esp32s3/Makerules</code></td><td><code>sin extensión</code></td><td>Driver/dispositivo: uart-esp32s3</td></tr>
+<tr><td><code>device/uart-esp32s3/esp32uart.h</code></td><td><code>h</code></td><td>Driver/dispositivo: uart-esp32s3</td></tr>
+<tr><td><code>device/uart-esp32s3/kgetc.c</code></td><td><code>c</code></td><td>Driver/dispositivo: uart-esp32s3</td></tr>
+<tr><td><code>device/uart-esp32s3/kputc.c</code></td><td><code>c</code></td><td>Driver/dispositivo: uart-esp32s3</td></tr>
+<tr><td><code>device/uart-esp32s3/uartHwInit.c</code></td><td><code>c</code></td><td>Driver/dispositivo: uart-esp32s3</td></tr>
+<tr><td><code>device/uart-esp32s3/uartHwPutc.c</code></td><td><code>c</code></td><td>Driver/dispositivo: uart-esp32s3</td></tr>
+<tr><td><code>device/uart-esp32s3/uartHwStat.c</code></td><td><code>c</code></td><td>Driver/dispositivo: uart-esp32s3</td></tr>
+<tr><td><code>device/uart-esp32s3/uartInterrupt.c</code></td><td><code>c</code></td><td>Driver/dispositivo: uart-esp32s3</td></tr>
+<tr><td><code>device/udp/Doxygroup.c</code></td><td><code>c</code></td><td>Driver/dispositivo: udp</td></tr>
+<tr><td><code>device/udp/Makerules</code></td><td><code>sin extensión</code></td><td>Driver/dispositivo: udp</td></tr>
+<tr><td><code>device/udp/udpAlloc.c</code></td><td><code>c</code></td><td>Driver/dispositivo: udp</td></tr>
+<tr><td><code>device/udp/udpChksum.c</code></td><td><code>c</code></td><td>Driver/dispositivo: udp</td></tr>
+<tr><td><code>device/udp/udpClose.c</code></td><td><code>c</code></td><td>Driver/dispositivo: udp</td></tr>
+<tr><td><code>device/udp/udpControl.c</code></td><td><code>c</code></td><td>Driver/dispositivo: udp</td></tr>
+<tr><td><code>device/udp/udpDemux.c</code></td><td><code>c</code></td><td>Driver/dispositivo: udp</td></tr>
+<tr><td><code>device/udp/udpFreebuf.c</code></td><td><code>c</code></td><td>Driver/dispositivo: udp</td></tr>
+<tr><td><code>device/udp/udpGetbuf.c</code></td><td><code>c</code></td><td>Driver/dispositivo: udp</td></tr>
+<tr><td><code>device/udp/udpInit.c</code></td><td><code>c</code></td><td>Driver/dispositivo: udp</td></tr>
+<tr><td><code>device/udp/udpOpen.c</code></td><td><code>c</code></td><td>Driver/dispositivo: udp</td></tr>
+<tr><td><code>device/udp/udpRead.c</code></td><td><code>c</code></td><td>Driver/dispositivo: udp</td></tr>
+<tr><td><code>device/udp/udpRecv.c</code></td><td><code>c</code></td><td>Driver/dispositivo: udp</td></tr>
+<tr><td><code>device/udp/udpSend.c</code></td><td><code>c</code></td><td>Driver/dispositivo: udp</td></tr>
+<tr><td><code>device/udp/udpWrite.c</code></td><td><code>c</code></td><td>Driver/dispositivo: udp</td></tr>
+<tr><td><code>device/w5500/Makerules</code></td><td><code>sin extensión</code></td><td>Driver/dispositivo: w5500</td></tr>
+<tr><td><code>device/w5500/w5500Close.c</code></td><td><code>c</code></td><td>Driver/dispositivo: w5500</td></tr>
+<tr><td><code>device/w5500/w5500Command.c</code></td><td><code>c</code></td><td>Driver/dispositivo: w5500</td></tr>
+<tr><td><code>device/w5500/w5500Control.c</code></td><td><code>c</code></td><td>Driver/dispositivo: w5500</td></tr>
+<tr><td><code>device/w5500/w5500Getc.c</code></td><td><code>c</code></td><td>Driver/dispositivo: w5500</td></tr>
+<tr><td><code>device/w5500/w5500Init.c</code></td><td><code>c</code></td><td>Driver/dispositivo: w5500</td></tr>
+<tr><td><code>device/w5500/w5500Interrupt.c</code></td><td><code>c</code></td><td>Driver/dispositivo: w5500</td></tr>
+<tr><td><code>device/w5500/w5500Open.c</code></td><td><code>c</code></td><td>Driver/dispositivo: w5500</td></tr>
+<tr><td><code>device/w5500/w5500Putc.c</code></td><td><code>c</code></td><td>Driver/dispositivo: w5500</td></tr>
+<tr><td><code>device/w5500/w5500Read.c</code></td><td><code>c</code></td><td>Driver/dispositivo: w5500</td></tr>
+<tr><td><code>device/w5500/w5500Spi.c</code></td><td><code>c</code></td><td>Driver/dispositivo: w5500</td></tr>
+<tr><td><code>device/w5500/w5500Write.c</code></td><td><code>c</code></td><td>Driver/dispositivo: w5500</td></tr>
+<tr><td><code>docs/Getting-Started.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/INVENTARIO-AMP.md</code></td><td><code>md</code></td><td>Este inventario generado</td></tr>
+<tr><td><code>docs/Introduction.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/MANUAL-AMP.md</code></td><td><code>md</code></td><td>Manual del kernel AMP</td></tr>
+<tr><td><code>docs/MANUAL-KERNEL.md</code></td><td><code>md</code></td><td>Manual de C, concurrencia y caso real</td></tr>
+<tr><td><code>docs/MANUAL-LOADER.md</code></td><td><code>md</code></td><td>Manual del Xinu loader</td></tr>
+<tr><td><code>docs/MANUAL-NATIVES.md</code></td><td><code>md</code></td><td>Tutorial de librerías Java y natives</td></tr>
+<tr><td><code>docs/Makefile</code></td><td><code>sin extensión</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/README</code></td><td><code>sin extensión</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/conf.py</code></td><td><code>py</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/index.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/make.bat</code></td><td><code>bat</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/xinusource.py</code></td><td><code>py</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/arm/ARM-Interrupt-Handling.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/arm/ARM-Preemptive-Multitasking.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/arm/ARM-qemu.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/arm/index.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/arm/rpi/BCM2835-Interrupt-Controller.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/arm/rpi/BCM2835-Memory-Barriers.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/arm/rpi/BCM2835-System-Timer.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/arm/rpi/BCM2835.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/arm/rpi/Raspberry-Pi-Interrupt-Handling.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/arm/rpi/Raspberry-Pi.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/arm/rpi/RaspberryPi.jpg</code></td><td><code>jpg</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/arm/rpi/SMSC-LAN9512.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/arm/rpi/Synopsys-USB-Controller.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/arm/rpi/XinuPi.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/arm/rpi/index.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/development/Build-System.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/development/Documentation.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/development/Git-Repository.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/development/Kernel-Normal-Form.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/development/Porting.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/development/Systems-Laboratory.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/development/Trace.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/development/XINU-Summer2011.png</code></td><td><code>png</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/development/index.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/features/Mailboxes.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/features/Memory-Management.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/features/Message-Passing.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/features/Preemptive-Multitasking.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/features/Shell.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/features/Standard-Library.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/features/TTY-Driver.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/features/TtyDriver.png</code></td><td><code>png</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/features/USB-Keyboard-Driver.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/features/USB.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/features/index.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/features/networking/ARP.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/features/networking/DHCP.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/features/networking/ICMP.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/features/networking/Networking-Stack.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/features/networking/Routing.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/features/networking/TCP.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/features/networking/TFTP.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/features/networking/UDP.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/features/networking/XINUNetStack-Print.jpeg</code></td><td><code>jpeg</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/features/networking/XINUNetStack-Screen.jpeg</code></td><td><code>jpeg</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/features/networking/XINUNetStack.pdf</code></td><td><code>pdf</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/features/networking/index.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/Common-Firmware-Environment.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/EJTAG-ID-Codes-and-Implementation-Registers.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/EJTAG.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/Exception-and-Interrupt-Handling.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/Flash-Driver.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/Flash-Memory.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/General-Purpose-Input-Output.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/HOWTO-Backup-Router.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/HOWTO-Connect-to-Modified-Router.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/HOWTO-Install-OpenWRT.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/HOWTO-Modify-the-ASUS-Hardware.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/HOWTO-Modify-the-Linksys-Hardware.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/HOWTO-Recover-Router.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/Memory.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/Mips-console.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/Mipsel-qemu.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/Processor.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/Serial-Adapter-Diagrams.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/Startup.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/Switch-Driver.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/TRX-Header.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/UART-Driver.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/WRT54GL.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/index.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/images/Attach_Back.jpg</code></td><td><code>jpg</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/images/Attach_Front.jpg</code></td><td><code>jpg</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/images/Baytech.png</code></td><td><code>png</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/images/BaytechWiring.png</code></td><td><code>png</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/images/Complete.jpg</code></td><td><code>jpg</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/images/Complete_transceiver_board.jpg</code></td><td><code>jpg</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/images/Completed_transceiver.jpg</code></td><td><code>jpg</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/images/DB9M.png</code></td><td><code>png</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/images/DB9_serial_port_wiring.jpg</code></td><td><code>jpg</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/images/Drilled_front.jpg</code></td><td><code>jpg</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/images/Front.jpg</code></td><td><code>jpg</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/images/Front_sticker.jpg</code></td><td><code>jpg</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/images/Impcode.png</code></td><td><code>png</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/images/JTAGunbuffered.png</code></td><td><code>png</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/images/NullModem.png</code></td><td><code>png</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/images/Opening-linksys.jpg</code></td><td><code>jpg</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/images/Serial.jpg</code></td><td><code>jpg</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/images/Serial_Port_Connection.jpg</code></td><td><code>jpg</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/images/Serial_ports_diagram.jpg</code></td><td><code>jpg</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/images/Serial_ports_done.jpg</code></td><td><code>jpg</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/images/Serial_ports_done1.jpg</code></td><td><code>jpg</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/images/Te_jtag_cable.png</code></td><td><code>png</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/images/Tranceiver_attached.jpg</code></td><td><code>jpg</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/images/Transceiver_board.jpg</code></td><td><code>jpg</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/images/Transceiver_schematic.jpg</code></td><td><code>jpg</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/images/Transceiver_schematic_wl-330gE.jpg</code></td><td><code>jpg</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/images/UartAsyncDriver.png</code></td><td><code>png</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/images/Wiggler.png</code></td><td><code>png</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/images/Wrt54gl-layout.jpg</code></td><td><code>jpg</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/mips/images/Xinu-Wiggler.png</code></td><td><code>png</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/projects/Curses.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/projects/WinX.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/projects/WinXinu-Installation.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/projects/WinXinu.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/projects/XinuPhone.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/projects/Xinuphone-schematic-page1.png</code></td><td><code>png</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/projects/Xinuphone-schematic-page2.png</code></td><td><code>png</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/projects/Xinuphone-system.jpg</code></td><td><code>jpg</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/projects/Xipx.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/projects/index.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/riscv/RISCV-qemu.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/riscv/index.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/Adding-Monitors-To-Xinu.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/Compiler-Construction-With-Embedded-Xinu.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/HOWTO-Build-Backend-Pool.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/HOWTO-Deploy-Xinu.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/Laboratory.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/Networking-With-Xinu.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/Student-Built-Xinu.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/Student-Extended-Xinu.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/Xinu-Helper-Class.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/index.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/assignments/ARP.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/assignments/Asynchronous-Device-Driver.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/assignments/Basic-Networking---Ping.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/assignments/C-Basics.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/assignments/C-Structs-and-Pointers.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/assignments/Context-Switch-and-Non-Preemptive-Scheduling.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/assignments/DHCP-Implementation.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/assignments/Delta-Queues.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/assignments/Heap-Memory.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/assignments/IP-ICMP-ARP-Applications.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/assignments/IP-ICMP.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/assignments/Instruction-Selection.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/assignments/LL-SC.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/assignments/Networking-Applications.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/assignments/Networking-Standards.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/assignments/Packet-Demultiplexing.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/assignments/Parser.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/assignments/Preemption-and-Synchronization.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/assignments/Priority-Scheduling-and-Preemption.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/assignments/Priority-Scheduling-and-Process-Termination.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/assignments/Scanner.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/assignments/Semantic-Analysis.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/assignments/Synchronization-and-Interprocess-Communication.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/assignments/Synchronous-Serial-Driver.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/assignments/TCP-Implementation.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/assignments/Translation.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/assignments/UDP-Implementation.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/assignments/Ultra-Tiny-File-System.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>docs/teaching/assignments/index.rst</code></td><td><code>rst</code></td><td>Documentación</td></tr>
+<tr><td><code>fs/Makerules</code></td><td><code>sin extensión</code></td><td>Sistema de archivos FAT</td></tr>
+<tr><td><code>fs/Src/disk.c</code></td><td><code>c</code></td><td>Sistema de archivos FAT</td></tr>
+<tr><td><code>fs/Src/fatPort.c</code></td><td><code>c</code></td><td>Sistema de archivos FAT</td></tr>
+<tr><td><code>fs/Src/fat_access.c</code></td><td><code>c</code></td><td>Acceso de bajo nivel a FAT</td></tr>
+<tr><td><code>fs/Src/fat_cache.c</code></td><td><code>c</code></td><td>Sistema de archivos FAT</td></tr>
+<tr><td><code>fs/Src/fat_filelib.c</code></td><td><code>c</code></td><td>API de ficheros FAT</td></tr>
+<tr><td><code>fs/Src/fat_format.c</code></td><td><code>c</code></td><td>Sistema de archivos FAT</td></tr>
+<tr><td><code>fs/Src/fat_misc.c</code></td><td><code>c</code></td><td>Sistema de archivos FAT</td></tr>
+<tr><td><code>fs/Src/fat_string.c</code></td><td><code>c</code></td><td>Sistema de archivos FAT</td></tr>
+<tr><td><code>fs/Src/fat_table.c</code></td><td><code>c</code></td><td>Sistema de archivos FAT</td></tr>
+<tr><td><code>fs/Src/fat_write.c</code></td><td><code>c</code></td><td>Sistema de archivos FAT</td></tr>
+<tr><td><code>include/arp.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/assert.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/backplane.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/board.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/bootinfo.h</code></td><td><code>h</code></td><td>Contrato de datos loader ↔ Xinu (v7)</td></tr>
+<tr><td><code>include/bufpool.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/button.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/clock.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/compiler.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/conf.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/ctype.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/date.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/debug.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/device.h</code></td><td><code>h</code></td><td>devtab[], struct devsw y tipos de dispositivo</td></tr>
+<tr><td><code>include/dhcpc.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/disk.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/endianness.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/ether.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/ethernet.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/fat_access.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/fat_cache.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/fat_defs.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/fat_filelib.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/fat_format.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/fat_list.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/fat_misc.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/fat_opts.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/fat_port.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/fat_string.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/fat_table.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/fat_types.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/fat_write.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/flash.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/gpio.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/icmp.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/ipv4.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/kernel.h</code></td><td><code>h</code></td><td>API del kernel y constantes globales</td></tr>
+<tr><td><code>include/limits.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/mailbox.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/memory.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/memtty.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/monitor.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/nam.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/name.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/network.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/null.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/platform.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/psram.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/queue.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/raw.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/rgb.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/route.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/sbconfig.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/sd.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/semaphore.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/shell.h</code></td><td><code>h</code></td><td>Prototipos de comandos y constantes del shell</td></tr>
+<tr><td><code>include/st7735.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/stack.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/stdarg.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/stddef.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/stdint.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/stdio.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/stdlib.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/string.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/syscall.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/tcp.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/telnet.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/tft.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/tftp.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/thread.h</code></td><td><code>h</code></td><td>Hilos, prioridades y tamaños de pila</td></tr>
+<tr><td><code>include/tty.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/uart.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/udp.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/usb_std_defs.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/usb_util.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/version.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/vlan.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/w5500.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/webterm.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/xinu_image.h</code></td><td><code>h</code></td><td>Formato empaquetado opcional XIMG</td></tr>
+<tr><td><code>include/xsh_fs.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/xsh_http.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>include/xtensa.h</code></td><td><code>h</code></td><td>Cabecera pública del kernel</td></tr>
+<tr><td><code>jvm/LICENSE</code></td><td><code>sin extensión</code></td><td>Simple JVM: intérprete o soporte</td></tr>
+<tr><td><code>jvm/build-examples.sh</code></td><td><code>sh</code></td><td>Compila librerías, tests y apps Java</td></tr>
+<tr><td><code>jvm/bytecodes.c</code></td><td><code>c</code></td><td>Intérprete de bytecodes</td></tr>
+<tr><td><code>jvm/class_parser.c</code></td><td><code>c</code></td><td>Parser de la cabecera .class</td></tr>
+<tr><td><code>jvm/constant_pool_parser.c</code></td><td><code>c</code></td><td>Parser del constant pool</td></tr>
+<tr><td><code>jvm/field_pool_parser.c</code></td><td><code>c</code></td><td>Simple JVM: intérprete o soporte</td></tr>
+<tr><td><code>jvm/free_pool.c</code></td><td><code>c</code></td><td>Simple JVM: intérprete o soporte</td></tr>
+<tr><td><code>jvm/heap.c</code></td><td><code>c</code></td><td>Objetos, arrays, String y StringBuilder</td></tr>
+<tr><td><code>jvm/interface_pool_parser.c</code></td><td><code>c</code></td><td>Simple JVM: intérprete o soporte</td></tr>
+<tr><td><code>jvm/java_lib.c</code></td><td><code>c</code></td><td>Tabla de natives y registro de librerías</td></tr>
+<tr><td><code>jvm/java_lib.h</code></td><td><code>h</code></td><td>Simple JVM: intérprete o soporte</td></tr>
+<tr><td><code>jvm/java_std.c</code></td><td><code>c</code></td><td>Natives de java.lang</td></tr>
+<tr><td><code>jvm/jvm_io.h</code></td><td><code>h</code></td><td>Simple JVM: intérprete o soporte</td></tr>
+<tr><td><code>jvm/jvm_map.h</code></td><td><code>h</code></td><td>Simple JVM: intérprete o soporte</td></tr>
+<tr><td><code>jvm/jvm_run.c</code></td><td><code>c</code></td><td>Carga, &lt;clinit&gt;, main y liberación del estado</td></tr>
+<tr><td><code>jvm/method_pool_parser.c</code></td><td><code>c</code></td><td>Simple JVM: intérprete o soporte</td></tr>
+<tr><td><code>jvm/simple_jvm.h</code></td><td><code>h</code></td><td>Estado de la VM, StackFrame, heap y límites</td></tr>
+<tr><td><code>jvm/stack.c</code></td><td><code>c</code></td><td>Pila de operandos y frames</td></tr>
+<tr><td><code>jvm/lib/esp32p4/FAT.java</code></td><td><code>java</code></td><td>Simple JVM: intérprete o soporte</td></tr>
+<tr><td><code>jvm/lib/esp32p4/HW.java</code></td><td><code>java</code></td><td>Simple JVM: intérprete o soporte</td></tr>
+<tr><td><code>jvm/lib/esp32p4/IO.java</code></td><td><code>java</code></td><td>Simple JVM: intérprete o soporte</td></tr>
+<tr><td><code>jvm/lib/esp32p4/LVGL.java</code></td><td><code>java</code></td><td>Simple JVM: intérprete o soporte</td></tr>
+<tr><td><code>jvm/lib/esp32p4/Net.java</code></td><td><code>java</code></td><td>Simple JVM: intérprete o soporte</td></tr>
+<tr><td><code>jvm/lib/esp32p4/RGB.java</code></td><td><code>java</code></td><td>Simple JVM: intérprete o soporte</td></tr>
+<tr><td><code>jvm/lib/esp32p4/Sys.java</code></td><td><code>java</code></td><td>Simple JVM: intérprete o soporte</td></tr>
+<tr><td><code>jvm/tests/Args.java</code></td><td><code>java</code></td><td>Simple JVM: intérprete o soporte</td></tr>
+<tr><td><code>jvm/tests/Arr.java</code></td><td><code>java</code></td><td>Simple JVM: intérprete o soporte</td></tr>
+<tr><td><code>jvm/tests/Fat.java</code></td><td><code>java</code></td><td>Simple JVM: intérprete o soporte</td></tr>
+<tr><td><code>jvm/tests/Fields1.java</code></td><td><code>java</code></td><td>Simple JVM: intérprete o soporte</td></tr>
+<tr><td><code>jvm/tests/FloatTest.java</code></td><td><code>java</code></td><td>Simple JVM: intérprete o soporte</td></tr>
+<tr><td><code>jvm/tests/IfElse.java</code></td><td><code>java</code></td><td>Simple JVM: intérprete o soporte</td></tr>
+<tr><td><code>jvm/tests/Long1.java</code></td><td><code>java</code></td><td>Simple JVM: intérprete o soporte</td></tr>
+<tr><td><code>jvm/tests/Loop.java</code></td><td><code>java</code></td><td>Simple JVM: intérprete o soporte</td></tr>
+<tr><td><code>jvm/tests/MethodReturn.java</code></td><td><code>java</code></td><td>Simple JVM: intérprete o soporte</td></tr>
+<tr><td><code>jvm/tests/NewByte.java</code></td><td><code>java</code></td><td>Simple JVM: intérprete o soporte</td></tr>
+<tr><td><code>jvm/tests/NewString.java</code></td><td><code>java</code></td><td>Simple JVM: intérprete o soporte</td></tr>
+<tr><td><code>jvm/tests/Recursion.java</code></td><td><code>java</code></td><td>Simple JVM: intérprete o soporte</td></tr>
+<tr><td><code>jvm/tests/StaticVoidA.java</code></td><td><code>java</code></td><td>Simple JVM: intérprete o soporte</td></tr>
+<tr><td><code>jvm/tests/Stdlib.java</code></td><td><code>java</code></td><td>Simple JVM: intérprete o soporte</td></tr>
+<tr><td><code>jvm/tests/StrBuild.java</code></td><td><code>java</code></td><td>Simple JVM: intérprete o soporte</td></tr>
+<tr><td><code>jvm/tests/Switch1.java</code></td><td><code>java</code></td><td>Simple JVM: intérprete o soporte</td></tr>
+<tr><td><code>jvm/tests/SysTest.java</code></td><td><code>java</code></td><td>Simple JVM: intérprete o soporte</td></tr>
+<tr><td><code>jvm/tests/Tetris.java</code></td><td><code>java</code></td><td>Simple JVM: intérprete o soporte</td></tr>
+<tr><td><code>jvm/tests/Workspace.java</code></td><td><code>java</code></td><td>Simple JVM: intérprete o soporte</td></tr>
+<tr><td><code>lib/Makerules</code></td><td><code>sin extensión</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/Doxygroup.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/Makefile</code></td><td><code>sin extensión</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/abs.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/atoi.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/atol.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/bzero.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/calloc.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/ctype_.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/doprnt.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/doscan.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/fgetc.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/fgets.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/fprintf.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/fputc.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/fputs.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/free.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/fscanf.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/labs.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/malloc.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/memchr.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/memcmp.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/memcpy.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/memmove.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/memset.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/printf.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/qsort.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/rand.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/realloc.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/sprintf.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/sscanf.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/strchr.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/strcmp.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/strcpy.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/strlcpy.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/strlen.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/strncat.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/strncmp.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/strncpy.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/strnlen.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/strrchr.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>lib/libxc/strstr.c</code></td><td><code>c</code></td><td>libxc: libc mínima</td></tr>
+<tr><td><code>loader/arch/README</code></td><td><code>sin extensión</code></td><td>Arranque, linker o plataforma del payload</td></tr>
+<tr><td><code>loader/platforms/esp32s3/Makerules</code></td><td><code>sin extensión</code></td><td>Arranque, linker o plataforma del payload</td></tr>
+<tr><td><code>loader/platforms/esp32s3/start.S</code></td><td><code>S</code></td><td>Entrada _start del payload AMP</td></tr>
+<tr><td><code>mailbox/Doxygroup.c</code></td><td><code>c</code></td><td>Mailbox del kernel</td></tr>
+<tr><td><code>mailbox/Makerules</code></td><td><code>sin extensión</code></td><td>Mailbox del kernel</td></tr>
+<tr><td><code>mailbox/mailboxAlloc.c</code></td><td><code>c</code></td><td>Mailbox del kernel</td></tr>
+<tr><td><code>mailbox/mailboxCount.c</code></td><td><code>c</code></td><td>Mailbox del kernel</td></tr>
+<tr><td><code>mailbox/mailboxFree.c</code></td><td><code>c</code></td><td>Mailbox del kernel</td></tr>
+<tr><td><code>mailbox/mailboxInit.c</code></td><td><code>c</code></td><td>Mailbox del kernel</td></tr>
+<tr><td><code>mailbox/mailboxReceive.c</code></td><td><code>c</code></td><td>Mailbox del kernel</td></tr>
+<tr><td><code>mailbox/mailboxSend.c</code></td><td><code>c</code></td><td>Mailbox del kernel</td></tr>
+<tr><td><code>network/Doxygroup.c</code></td><td><code>c</code></td><td>Pila de red: Doxygroup.c</td></tr>
+<tr><td><code>network/Makerules</code></td><td><code>sin extensión</code></td><td>Pila de red: Makerules</td></tr>
+<tr><td><code>network/arp/Doxygroup.c</code></td><td><code>c</code></td><td>Pila de red: arp</td></tr>
+<tr><td><code>network/arp/Makerules</code></td><td><code>sin extensión</code></td><td>Pila de red: arp</td></tr>
+<tr><td><code>network/arp/arpAlloc.c</code></td><td><code>c</code></td><td>Pila de red: arp</td></tr>
+<tr><td><code>network/arp/arpDaemon.c</code></td><td><code>c</code></td><td>Pila de red: arp</td></tr>
+<tr><td><code>network/arp/arpFree.c</code></td><td><code>c</code></td><td>Pila de red: arp</td></tr>
+<tr><td><code>network/arp/arpGetEntry.c</code></td><td><code>c</code></td><td>Pila de red: arp</td></tr>
+<tr><td><code>network/arp/arpInit.c</code></td><td><code>c</code></td><td>Pila de red: arp</td></tr>
+<tr><td><code>network/arp/arpLearn.c</code></td><td><code>c</code></td><td>Pila de red: arp</td></tr>
+<tr><td><code>network/arp/arpLookup.c</code></td><td><code>c</code></td><td>Pila de red: arp</td></tr>
+<tr><td><code>network/arp/arpNotify.c</code></td><td><code>c</code></td><td>Pila de red: arp</td></tr>
+<tr><td><code>network/arp/arpRecv.c</code></td><td><code>c</code></td><td>Pila de red: arp</td></tr>
+<tr><td><code>network/arp/arpSendReply.c</code></td><td><code>c</code></td><td>Pila de red: arp</td></tr>
+<tr><td><code>network/arp/arpSendRqst.c</code></td><td><code>c</code></td><td>Pila de red: arp</td></tr>
+<tr><td><code>network/dhcpc/Doxygroup.c</code></td><td><code>c</code></td><td>Pila de red: dhcpc</td></tr>
+<tr><td><code>network/dhcpc/Makerules</code></td><td><code>sin extensión</code></td><td>Pila de red: dhcpc</td></tr>
+<tr><td><code>network/dhcpc/dhcp.h</code></td><td><code>h</code></td><td>Pila de red: dhcpc</td></tr>
+<tr><td><code>network/dhcpc/dhcpClient.c</code></td><td><code>c</code></td><td>Pila de red: dhcpc</td></tr>
+<tr><td><code>network/dhcpc/dhcpRecvReply.c</code></td><td><code>c</code></td><td>Pila de red: dhcpc</td></tr>
+<tr><td><code>network/dhcpc/dhcpSendRequest.c</code></td><td><code>c</code></td><td>Pila de red: dhcpc</td></tr>
+<tr><td><code>network/icmp/Doxygroup.c</code></td><td><code>c</code></td><td>Pila de red: icmp</td></tr>
+<tr><td><code>network/icmp/Makerules</code></td><td><code>sin extensión</code></td><td>Pila de red: icmp</td></tr>
+<tr><td><code>network/icmp/icmpDaemon.c</code></td><td><code>c</code></td><td>Pila de red: icmp</td></tr>
+<tr><td><code>network/icmp/icmpDestUnreach.c</code></td><td><code>c</code></td><td>Pila de red: icmp</td></tr>
+<tr><td><code>network/icmp/icmpEchoReply.c</code></td><td><code>c</code></td><td>Pila de red: icmp</td></tr>
+<tr><td><code>network/icmp/icmpEchoRequest.c</code></td><td><code>c</code></td><td>Pila de red: icmp</td></tr>
+<tr><td><code>network/icmp/icmpInit.c</code></td><td><code>c</code></td><td>Pila de red: icmp</td></tr>
+<tr><td><code>network/icmp/icmpRecv.c</code></td><td><code>c</code></td><td>Pila de red: icmp</td></tr>
+<tr><td><code>network/icmp/icmpRedirect.c</code></td><td><code>c</code></td><td>Pila de red: icmp</td></tr>
+<tr><td><code>network/icmp/icmpSend.c</code></td><td><code>c</code></td><td>Pila de red: icmp</td></tr>
+<tr><td><code>network/icmp/icmpTimeExceeded.c</code></td><td><code>c</code></td><td>Pila de red: icmp</td></tr>
+<tr><td><code>network/ipv4/Doxygroup.c</code></td><td><code>c</code></td><td>Pila de red: ipv4</td></tr>
+<tr><td><code>network/ipv4/Makerules</code></td><td><code>sin extensión</code></td><td>Pila de red: ipv4</td></tr>
+<tr><td><code>network/ipv4/dot2ipv4.c</code></td><td><code>c</code></td><td>Pila de red: ipv4</td></tr>
+<tr><td><code>network/ipv4/ipv4Recv.c</code></td><td><code>c</code></td><td>Pila de red: ipv4</td></tr>
+<tr><td><code>network/ipv4/ipv4RecvDemux.c</code></td><td><code>c</code></td><td>Pila de red: ipv4</td></tr>
+<tr><td><code>network/ipv4/ipv4RecvValid.c</code></td><td><code>c</code></td><td>Pila de red: ipv4</td></tr>
+<tr><td><code>network/ipv4/ipv4Send.c</code></td><td><code>c</code></td><td>Pila de red: ipv4</td></tr>
+<tr><td><code>network/ipv4/ipv4SendFrag.c</code></td><td><code>c</code></td><td>Pila de red: ipv4</td></tr>
+<tr><td><code>network/net/Makerules</code></td><td><code>sin extensión</code></td><td>Pila de red: net</td></tr>
+<tr><td><code>network/net/netChksum.c</code></td><td><code>c</code></td><td>Pila de red: net</td></tr>
+<tr><td><code>network/net/netDown.c</code></td><td><code>c</code></td><td>Pila de red: net</td></tr>
+<tr><td><code>network/net/netFreebuf.c</code></td><td><code>c</code></td><td>Pila de red: net</td></tr>
+<tr><td><code>network/net/netGetbuf.c</code></td><td><code>c</code></td><td>Pila de red: net</td></tr>
+<tr><td><code>network/net/netInit.c</code></td><td><code>c</code></td><td>Inicialización de la pila de red</td></tr>
+<tr><td><code>network/net/netLookup.c</code></td><td><code>c</code></td><td>Pila de red: net</td></tr>
+<tr><td><code>network/net/netRecv.c</code></td><td><code>c</code></td><td>Pila de red: net</td></tr>
+<tr><td><code>network/net/netSend.c</code></td><td><code>c</code></td><td>Pila de red: net</td></tr>
+<tr><td><code>network/net/netUp.c</code></td><td><code>c</code></td><td>Activación de interfaz de red</td></tr>
+<tr><td><code>network/netaddr/Makerules</code></td><td><code>sin extensión</code></td><td>Pila de red: netaddr</td></tr>
+<tr><td><code>network/netaddr/netaddrequal.c</code></td><td><code>c</code></td><td>Pila de red: netaddr</td></tr>
+<tr><td><code>network/netaddr/netaddrhost.c</code></td><td><code>c</code></td><td>Pila de red: netaddr</td></tr>
+<tr><td><code>network/netaddr/netaddrmask.c</code></td><td><code>c</code></td><td>Pila de red: netaddr</td></tr>
+<tr><td><code>network/netaddr/netaddrsprintf.c</code></td><td><code>c</code></td><td>Pila de red: netaddr</td></tr>
+<tr><td><code>network/route/Doxygroup.c</code></td><td><code>c</code></td><td>Pila de red: route</td></tr>
+<tr><td><code>network/route/Makerules</code></td><td><code>sin extensión</code></td><td>Pila de red: route</td></tr>
+<tr><td><code>network/route/rtAdd.c</code></td><td><code>c</code></td><td>Pila de red: route</td></tr>
+<tr><td><code>network/route/rtAlloc.c</code></td><td><code>c</code></td><td>Pila de red: route</td></tr>
+<tr><td><code>network/route/rtClear.c</code></td><td><code>c</code></td><td>Pila de red: route</td></tr>
+<tr><td><code>network/route/rtDaemon.c</code></td><td><code>c</code></td><td>Pila de red: route</td></tr>
+<tr><td><code>network/route/rtDefault.c</code></td><td><code>c</code></td><td>Pila de red: route</td></tr>
+<tr><td><code>network/route/rtInit.c</code></td><td><code>c</code></td><td>Pila de red: route</td></tr>
+<tr><td><code>network/route/rtLookup.c</code></td><td><code>c</code></td><td>Pila de red: route</td></tr>
+<tr><td><code>network/route/rtRecv.c</code></td><td><code>c</code></td><td>Pila de red: route</td></tr>
+<tr><td><code>network/route/rtRemove.c</code></td><td><code>c</code></td><td>Pila de red: route</td></tr>
+<tr><td><code>network/route/rtSend.c</code></td><td><code>c</code></td><td>Pila de red: route</td></tr>
+<tr><td><code>network/tftp/Doxygroup.c</code></td><td><code>c</code></td><td>Pila de red: tftp</td></tr>
+<tr><td><code>network/tftp/Makerules</code></td><td><code>sin extensión</code></td><td>Pila de red: tftp</td></tr>
+<tr><td><code>network/tftp/tftpGet.c</code></td><td><code>c</code></td><td>Pila de red: tftp</td></tr>
+<tr><td><code>network/tftp/tftpGetIntoBuffer.c</code></td><td><code>c</code></td><td>Pila de red: tftp</td></tr>
+<tr><td><code>network/tftp/tftpRecvPackets.c</code></td><td><code>c</code></td><td>Pila de red: tftp</td></tr>
+<tr><td><code>network/tftp/tftpSendACK.c</code></td><td><code>c</code></td><td>Pila de red: tftp</td></tr>
+<tr><td><code>network/tftp/tftpSendRRQ.c</code></td><td><code>c</code></td><td>Pila de red: tftp</td></tr>
+<tr><td><code>shell/Doxygroup.c</code></td><td><code>c</code></td><td>Shell, HTTP o terminal web</td></tr>
+<tr><td><code>shell/Makerules</code></td><td><code>sin extensión</code></td><td>Shell, HTTP o terminal web</td></tr>
+<tr><td><code>shell/getopt.c</code></td><td><code>c</code></td><td>Shell, HTTP o terminal web</td></tr>
+<tr><td><code>shell/httpapi.c</code></td><td><code>c</code></td><td>API JSON de archivos y ejecución remota</td></tr>
+<tr><td><code>shell/lexan.c</code></td><td><code>c</code></td><td>Shell, HTTP o terminal web</td></tr>
+<tr><td><code>shell/shell.c</code></td><td><code>c</code></td><td>Intérprete y commandtab[]</td></tr>
+<tr><td><code>shell/webterm.c</code></td><td><code>c</code></td><td>Terminal web, MEMTTY0 y worker webshell</td></tr>
+<tr><td><code>shell/xsh_arp.c</code></td><td><code>c</code></td><td>Comando shell: arp</td></tr>
+<tr><td><code>shell/xsh_button.c</code></td><td><code>c</code></td><td>Comando shell: button</td></tr>
+<tr><td><code>shell/xsh_cat.c</code></td><td><code>c</code></td><td>Comando shell: cat</td></tr>
+<tr><td><code>shell/xsh_cd.c</code></td><td><code>c</code></td><td>Comando shell: cd</td></tr>
+<tr><td><code>shell/xsh_clear.c</code></td><td><code>c</code></td><td>Comando shell: clear</td></tr>
+<tr><td><code>shell/xsh_config.c</code></td><td><code>c</code></td><td>Comando shell: config</td></tr>
+<tr><td><code>shell/xsh_cp.c</code></td><td><code>c</code></td><td>Comando shell: cp</td></tr>
+<tr><td><code>shell/xsh_curl.c</code></td><td><code>c</code></td><td>Comando shell: curl</td></tr>
+<tr><td><code>shell/xsh_date.c</code></td><td><code>c</code></td><td>Comando shell: date</td></tr>
+<tr><td><code>shell/xsh_df.c</code></td><td><code>c</code></td><td>Comando shell: df</td></tr>
+<tr><td><code>shell/xsh_dns.c</code></td><td><code>c</code></td><td>Comando shell: dns</td></tr>
+<tr><td><code>shell/xsh_du.c</code></td><td><code>c</code></td><td>Comando shell: du</td></tr>
+<tr><td><code>shell/xsh_dumpfile.c</code></td><td><code>c</code></td><td>Comando shell: dumpfile</td></tr>
+<tr><td><code>shell/xsh_echo.c</code></td><td><code>c</code></td><td>Comando shell: echo</td></tr>
+<tr><td><code>shell/xsh_exit.c</code></td><td><code>c</code></td><td>Comando shell: exit</td></tr>
+<tr><td><code>shell/xsh_fat.c</code></td><td><code>c</code></td><td>Comando shell: fat</td></tr>
+<tr><td><code>shell/xsh_free.c</code></td><td><code>c</code></td><td>Comando shell: free</td></tr>
+<tr><td><code>shell/xsh_fsutil.c</code></td><td><code>c</code></td><td>Comando shell: fsutil</td></tr>
+<tr><td><code>shell/xsh_gpio.c</code></td><td><code>c</code></td><td>Comando shell: gpio</td></tr>
+<tr><td><code>shell/xsh_head.c</code></td><td><code>c</code></td><td>Comando shell: head</td></tr>
+<tr><td><code>shell/xsh_help.c</code></td><td><code>c</code></td><td>Comando shell: help</td></tr>
+<tr><td><code>shell/xsh_hexdump.c</code></td><td><code>c</code></td><td>Comando shell: hexdump</td></tr>
+<tr><td><code>shell/xsh_httpd.c</code></td><td><code>c</code></td><td>Servidor HTTP y ficheros estáticos</td></tr>
+<tr><td><code>shell/xsh_ifconfig.c</code></td><td><code>c</code></td><td>Comando shell: ifconfig</td></tr>
+<tr><td><code>shell/xsh_ip.c</code></td><td><code>c</code></td><td>Comando shell: ip</td></tr>
+<tr><td><code>shell/xsh_java.c</code></td><td><code>c</code></td><td>Comando shell: java</td></tr>
+<tr><td><code>shell/xsh_kill.c</code></td><td><code>c</code></td><td>Comando shell: kill</td></tr>
+<tr><td><code>shell/xsh_ls.c</code></td><td><code>c</code></td><td>Comando shell: ls</td></tr>
+<tr><td><code>shell/xsh_memdump.c</code></td><td><code>c</code></td><td>Comando shell: memdump</td></tr>
+<tr><td><code>shell/xsh_memstat.c</code></td><td><code>c</code></td><td>Comando shell: memstat</td></tr>
+<tr><td><code>shell/xsh_mkdir.c</code></td><td><code>c</code></td><td>Comando shell: mkdir</td></tr>
+<tr><td><code>shell/xsh_mon.c</code></td><td><code>c</code></td><td>Comando shell: mon</td></tr>
+<tr><td><code>shell/xsh_mv.c</code></td><td><code>c</code></td><td>Comando shell: mv</td></tr>
+<tr><td><code>shell/xsh_nc.c</code></td><td><code>c</code></td><td>Comando shell: nc</td></tr>
+<tr><td><code>shell/xsh_netdown.c</code></td><td><code>c</code></td><td>Comando shell: netdown</td></tr>
+<tr><td><code>shell/xsh_netstat.c</code></td><td><code>c</code></td><td>Comando shell: netstat</td></tr>
+<tr><td><code>shell/xsh_netup.c</code></td><td><code>c</code></td><td>Arranque de red, DHCP y espera de link</td></tr>
+<tr><td><code>shell/xsh_ping.c</code></td><td><code>c</code></td><td>Comando shell: ping</td></tr>
+<tr><td><code>shell/xsh_ps.c</code></td><td><code>c</code></td><td>ps: hilos, estado, prioridad y CPU%</td></tr>
+<tr><td><code>shell/xsh_psram.c</code></td><td><code>c</code></td><td>Comando shell: psram</td></tr>
+<tr><td><code>shell/xsh_pwd.c</code></td><td><code>c</code></td><td>Comando shell: pwd</td></tr>
+<tr><td><code>shell/xsh_rdate.c</code></td><td><code>c</code></td><td>Comando shell: rdate</td></tr>
+<tr><td><code>shell/xsh_reset.c</code></td><td><code>c</code></td><td>Comando shell: reset</td></tr>
+<tr><td><code>shell/xsh_rm.c</code></td><td><code>c</code></td><td>Comando shell: rm</td></tr>
+<tr><td><code>shell/xsh_rmdir.c</code></td><td><code>c</code></td><td>Comando shell: rmdir</td></tr>
+<tr><td><code>shell/xsh_route.c</code></td><td><code>c</code></td><td>Comando shell: route</td></tr>
+<tr><td><code>shell/xsh_sd.c</code></td><td><code>c</code></td><td>Comando shell: sd</td></tr>
+<tr><td><code>shell/xsh_sem.c</code></td><td><code>c</code></td><td>Comando shell: sem</td></tr>
+<tr><td><code>shell/xsh_sleep.c</code></td><td><code>c</code></td><td>Comando shell: sleep</td></tr>
+<tr><td><code>shell/xsh_snoop.c</code></td><td><code>c</code></td><td>Comando shell: snoop</td></tr>
+<tr><td><code>shell/xsh_stack.c</code></td><td><code>c</code></td><td>Comando shell: stack</td></tr>
+<tr><td><code>shell/xsh_stat.c</code></td><td><code>c</code></td><td>Comando shell: stat</td></tr>
+<tr><td><code>shell/xsh_tail.c</code></td><td><code>c</code></td><td>Comando shell: tail</td></tr>
+<tr><td><code>shell/xsh_tcpstat.c</code></td><td><code>c</code></td><td>Comando shell: tcpstat</td></tr>
+<tr><td><code>shell/xsh_telnet.c</code></td><td><code>c</code></td><td>Comando shell: telnet</td></tr>
+<tr><td><code>shell/xsh_telnetd.c</code></td><td><code>c</code></td><td>Comando shell: telnetd</td></tr>
+<tr><td><code>shell/xsh_telnetserver.c</code></td><td><code>c</code></td><td>Comando shell: telnetserver</td></tr>
+<tr><td><code>shell/xsh_tft.c</code></td><td><code>c</code></td><td>Comando shell: tft</td></tr>
+<tr><td><code>shell/xsh_udpserver.c</code></td><td><code>c</code></td><td>Servidor UDP de comandos y firmware</td></tr>
+<tr><td><code>shell/xsh_udpstat.c</code></td><td><code>c</code></td><td>Comando shell: udpstat</td></tr>
+<tr><td><code>shell/xsh_w5500.c</code></td><td><code>c</code></td><td>Comando shell: w5500</td></tr>
+<tr><td><code>shell/xsh_wget.c</code></td><td><code>c</code></td><td>Comando shell: wget</td></tr>
+<tr><td><code>shell/xsh_xmodem.c</code></td><td><code>c</code></td><td>Comando shell: xmodem</td></tr>
+<tr><td><code>system/Doxygroup.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/Makerules</code></td><td><code>sin extensión</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/bfpalloc.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/bfpfree.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/buffree.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/bufget.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/chprio.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/clkhandler.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/clkinit.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/close.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/conf.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/control.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/create.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/debug.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/getc.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/getdev.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/getitem.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/getprio.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/gettid.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/heap.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/initialize.c</code></td><td><code>c</code></td><td>nulluser(), sysinit() y tablas del kernel</td></tr>
+<tr><td><code>system/insert.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/insertd.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/ioerr.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/ionull.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/kill.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/lock.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/main.c</code></td><td><code>c</code></td><td>Arranque de consola, TFT, red, servidores y shell</td></tr>
+<tr><td><code>system/mdelay.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/memfree.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/memget.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/moncount.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/moncreate.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/monfree.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/open.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/putc.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/queinit.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/queue.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/read.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/ready.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/receive.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/recvclr.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/recvtime.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/resched.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/resume.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/seek.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/semcount.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/semcreate.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/semfree.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/send.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/signal.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/signaln.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/sleep.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/softfloat.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/stack.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/stkget.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/suspend.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/udelay.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/unlock.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/unsleep.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/userret.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/wait.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/wakeup.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/write.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/xdone.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/yield.c</code></td><td><code>c</code></td><td>Kernel: núcleo, syscalls o scheduler</td></tr>
+<tr><td><code>system/arch/README</code></td><td><code>sin extensión</code></td><td>Kernel: arquitectura Xtensa</td></tr>
+<tr><td><code>system/arch/xtensa/ctxsw.S</code></td><td><code>S</code></td><td>Cambio de contexto ABI CALL0</td></tr>
+<tr><td><code>system/arch/xtensa/espclk.c</code></td><td><code>c</code></td><td>Kernel: arquitectura Xtensa</td></tr>
+<tr><td><code>system/arch/xtensa/exception.c</code></td><td><code>c</code></td><td>Kernel: arquitectura Xtensa</td></tr>
+<tr><td><code>system/arch/xtensa/halt.S</code></td><td><code>S</code></td><td>Kernel: arquitectura Xtensa</td></tr>
+<tr><td><code>system/arch/xtensa/interrupt.h</code></td><td><code>h</code></td><td>Kernel: arquitectura Xtensa</td></tr>
+<tr><td><code>system/arch/xtensa/intutils.S</code></td><td><code>S</code></td><td>Kernel: arquitectura Xtensa</td></tr>
+<tr><td><code>system/arch/xtensa/panic.c</code></td><td><code>c</code></td><td>Kernel: arquitectura Xtensa</td></tr>
+<tr><td><code>system/arch/xtensa/pause.S</code></td><td><code>S</code></td><td>Kernel: arquitectura Xtensa</td></tr>
+<tr><td><code>system/arch/xtensa/setupStack.c</code></td><td><code>c</code></td><td>Kernel: arquitectura Xtensa</td></tr>
+<tr><td><code>system/arch/xtensa/vectors.S</code></td><td><code>S</code></td><td>Kernel: arquitectura Xtensa</td></tr>
+<tr><td><code>system/platforms/esp32s3/Makerules</code></td><td><code>sin extensión</code></td><td>Kernel: plataforma ESP32-S3</td></tr>
+<tr><td><code>system/platforms/esp32s3/bswapsi2.S</code></td><td><code>S</code></td><td>Kernel: plataforma ESP32-S3</td></tr>
+<tr><td><code>system/platforms/esp32s3/ctxsw.S</code></td><td><code>S</code></td><td>Kernel: plataforma ESP32-S3</td></tr>
+<tr><td><code>system/platforms/esp32s3/espclk.c</code></td><td><code>c</code></td><td>Reloj CCOUNT desde bootinfo</td></tr>
+<tr><td><code>system/platforms/esp32s3/exception.c</code></td><td><code>c</code></td><td>Kernel: plataforma ESP32-S3</td></tr>
+<tr><td><code>system/platforms/esp32s3/halt.S</code></td><td><code>S</code></td><td>Kernel: plataforma ESP32-S3</td></tr>
+<tr><td><code>system/platforms/esp32s3/intc.c</code></td><td><code>c</code></td><td>Interrupciones Xtensa del payload</td></tr>
+<tr><td><code>system/platforms/esp32s3/interrupt.h</code></td><td><code>h</code></td><td>Kernel: plataforma ESP32-S3</td></tr>
+<tr><td><code>system/platforms/esp32s3/intutils.S</code></td><td><code>S</code></td><td>Kernel: plataforma ESP32-S3</td></tr>
+<tr><td><code>system/platforms/esp32s3/panic.c</code></td><td><code>c</code></td><td>Kernel: plataforma ESP32-S3</td></tr>
+<tr><td><code>system/platforms/esp32s3/pause.S</code></td><td><code>S</code></td><td>Kernel: plataforma ESP32-S3</td></tr>
+<tr><td><code>system/platforms/esp32s3/platforminit.c</code></td><td><code>c</code></td><td>Valida bootinfo y publica PSRAM</td></tr>
+<tr><td><code>system/platforms/esp32s3/setupStack.c</code></td><td><code>c</code></td><td>Kernel: plataforma ESP32-S3</td></tr>
+<tr><td><code>system/platforms/esp32s3/vectors.S</code></td><td><code>S</code></td><td>Kernel: plataforma ESP32-S3</td></tr>
+<tr><td><code>tools/gen_inventory.py</code></td><td><code>py</code></td><td>Generador de este inventario</td></tr>
+<tr><td><code>tools/mkxinuimg.py</code></td><td><code>py</code></td><td>Empaquetador opcional XIMG (no activo)</td></tr>
+<tr><td><code>web/README.md</code></td><td><code>md</code></td><td>Endpoints, terminal, gestor y estructura web</td></tr>
+<tr><td><code>web/amp.html</code></td><td><code>html</code></td><td>Interfaz web o build web</td></tr>
+<tr><td><code>web/build_web.py</code></td><td><code>py</code></td><td>Genera y valida las páginas HTML</td></tr>
+<tr><td><code>web/docs.html</code></td><td><code>html</code></td><td>Documentación técnica heredada</td></tr>
+<tr><td><code>web/index.html</code></td><td><code>html</code></td><td>Dashboard, terminal web y gestor de archivos</td></tr>
+<tr><td><code>web/inventory.html</code></td><td><code>html</code></td><td>Interfaz web o build web</td></tr>
+<tr><td><code>web/loader.html</code></td><td><code>html</code></td><td>Interfaz web o build web</td></tr>
+<tr><td><code>web/manual.html</code></td><td><code>html</code></td><td>Interfaz web o build web</td></tr>
+<tr><td><code>web/md2html.py</code></td><td><code>py</code></td><td>Conversor Markdown → HTML</td></tr>
+<tr><td><code>web/natives.html</code></td><td><code>html</code></td><td>Interfaz web o build web</td></tr>
+</tbody></table>
+<hr>
+<p>Total: <strong>833 ficheros</strong>.</p>
+<p>Los módulos y los ficheros clave se explican en <a href="amp.html">Manual AMP</a>, <a href="loader.html">Manual del loader</a> y <a href="natives.html">Manual de natives</a>.</p>
+</main>
+</body>
+</html>

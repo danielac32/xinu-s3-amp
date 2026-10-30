@@ -1,0 +1,113 @@
+/**
+ * @file ld-amp.script
+ *
+ * Linker script for the ESP32-S3 AMP payload.
+ *
+ * Runtime layout:
+ *   - .vector                   -> 1 KiB vector table in the XIP window
+ *   - .init/.text/.slowtext     -> flash XIP window
+ *   - .rodata/.data/.bss        -> PSRAM
+ *   - .stacks                   -> fixed panic + null stacks in PSRAM
+ *   - heap                      -> everything after _end, managed by heap.c
+ *
+ * The first 0x1000 bytes of the flash partition are the loader header; the
+ * payload starts at XIP_BASE + 0x1000.  The loader maps the partition at
+ * XIP_BASE; start.S programs VECBASE from the linked _xt_vector_table.
+ */
+/* Embedded Xinu, ESP32-S3 AMP. */
+
+ENTRY(_start)
+
+MEMORY
+{
+    /* The loader maps the payload partition at XIP_BASE.  The vector table is
+     * at the start of the partition, so there is no separate image header. */
+    xip  (rx)  : ORIGIN = 0x42100000, LENGTH = 0x00200000
+
+    /* PSRAM data window.  The loader installs a private alias at
+     * 0x3D800000 and starts Xinu at 0x3D801000.  The whole window is
+     * mapped by IDF; the heap starts after _end. */
+    psram (rw) : ORIGIN = 0x3D801000, LENGTH = 0x007DF000
+}
+
+SECTIONS
+{
+    /* This is a source blob only.  The loader copies it to the IRAM page
+     * reported in bootinfo.vecbase; it is never executed from flash. */
+    .vector : ALIGN(1024)
+    {
+        KEEP(*(.vector))
+    } > xip
+
+    .init : ALIGN(16)
+    {
+        KEEP(*(.init .init.*))
+    } > xip
+
+    .text : ALIGN(16)
+    {
+        *(.literal .literal.*)
+        *(.text .text.*)
+        *(.slowtext .slowtext.*)
+        *(.iram.text .iram.text.*)
+        *(.gnu.linkonce.t.*)
+        _etext = .;
+    } > xip
+
+    /* .rodata is read with normal data loads.  On the ESP32-S3 core 1,
+     * XIP/IROM is not reachable through DBUS for those accesses, so keep
+     * constants in PSRAM where they can be loaded normally.  The loader
+     * copies this segment from its XIP LMA into the PSRAM VMA. */
+    .rodata : ALIGN(16)
+    {
+        _rodata_start = .;
+        *(.rodata .rodata.*)
+        *(.gnu.linkonce.r.*)
+        _rodata_end = .;
+    } > psram AT > xip
+    _rodata_lma = LOADADDR(.rodata);
+
+    .data : ALIGN(16)
+    {
+        _data_start = .;
+        *(.data .data.*)
+        *(.gnu.linkonce.d.*)
+        *(.sdata .sdata.*)
+        _data_end = .;
+    } > psram AT > xip
+    _data_lma = LOADADDR(.data);
+
+    . = ALIGN(16);
+    _bss_start = .;
+    .bss (NOLOAD) : ALIGN(16)
+    {
+        *(.bss .bss.*)
+        *(.sbss .sbss.*)
+        *(COMMON)
+    } > psram
+    . = ALIGN(16);
+    _bss_end = .;
+
+    /* Fixed boot stacks.  They are not part of the heap: start.S uses the
+     * top of this region for the null thread, and the panic handler uses
+     * _panicstk_top.  The heap starts after _end, so it can never overlap
+     * them. */
+    _stacks_start = .;
+    .stacks (NOLOAD) : ALIGN(16)
+    {
+        . += 0x4000;        /* 8 KiB panic stack + 8 KiB null stack */
+    } > psram
+    _stacks_end = .;
+    _panicstk_top = _stacks_start + 0x2000;
+    _nullstk_top  = _stacks_end;
+    _end = .;
+
+    /DISCARD/ :
+    {
+        *(.comment .comment.*)
+        *(.note .note.*)
+        *(.debug_*)
+        *(.xt.prop .xt.prop.*)
+        *(.xt.lit .xt.lit.*)
+    }
+}

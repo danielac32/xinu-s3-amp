@@ -1,0 +1,694 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manual del kernel AMP · Xinu ESP32-S3</title>
+<style>
+:root{--bg:#0a0f1d;--card:#131d33;--line:#26344f;--txt:#e8eef7;--muted:#a9b8cf;
+--dim:#7c8ca6;--acc:#6ea8fe;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);
+font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,Ubuntu,sans-serif}
+main{max-width:58rem;margin:0 auto;padding:2rem 1.2rem 5rem}
+a{color:var(--acc);text-decoration:none}a:hover{text-decoration:underline}
+h1{font-size:2rem;line-height:1.2;margin:.2rem 0 .4rem;letter-spacing:-.02em}
+h2{font-size:1.35rem;margin:2.4rem 0 .6rem;padding-top:.6rem;border-top:1px solid var(--line)}
+h3{font-size:1.08rem;margin:1.7rem 0 .4rem;color:#dbe7fa}
+h4{font-size:.98rem;margin:1.2rem 0 .3rem}
+p{margin:.65rem 0;color:#d5e0f0}
+code{font-family:var(--mono);background:#0b1322;border:1px solid #1f2c45;border-radius:4px;
+padding:.08em .35em;font-size:.88em}
+pre{background:#080d18;border:1px solid var(--line);border-radius:10px;padding:1rem;overflow:auto;
+font-size:.84rem;line-height:1.55}
+pre code{background:none;border:0;padding:0;font-size:inherit}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid #1e2b44;vertical-align:top}
+th{color:var(--dim);font-size:.78rem;text-transform:uppercase;letter-spacing:.06em}
+blockquote{margin:1rem 0;padding:.7rem 1rem;border-left:3px solid var(--acc);background:#0f1a2e;
+border-radius:0 8px 8px 0;color:var(--muted)}
+hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+ul,ol{padding-left:1.4rem}li{margin:.25rem 0;color:#d5e0f0}
+.back{display:inline-block;margin-bottom:1rem;font-size:.9rem;color:var(--muted);
+border:1px solid var(--line);border-radius:8px;padding:.4rem .7rem}
+.back:hover{color:var(--txt);border-color:var(--acc)}
+.toc{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:1rem 1.2rem;margin:1.6rem 0}
+.toc h2{border:0;margin:.1rem 0 .5rem;padding:0;font-size:1rem}
+.toc ul{list-style:none;padding:0;margin:0;columns:2;column-gap:2rem}
+.toc li{margin:.15rem 0;font-size:.9rem}
+.toc .l3{padding-left:1rem;color:var(--dim)}
+@media(max-width:720px){.toc ul{columns:1}}
+</style>
+</head>
+<body>
+<main>
+<a class="back" href="index.html">← Volver al dashboard</a>
+<h1 id="manual-del-kernel-xinu-amp-esp32-s3">Manual del kernel Xinu AMP — ESP32-S3</h1>
+<p>Este manual describe <strong>este árbol</strong> (<code>/home/daniel/xinu-s3-amp</code>), no el Xinu genérico ni el port bare-metal de <code>s3-xinu</code>. Todos los ficheros, funciones y comandos que aparecen aquí existen en el repositorio.</p>
+<p>El kernel se ejecuta como <strong>payload AMP</strong> en el core 1 del ESP32-S3. El core 0 queda para el loader de ESP-IDF. El arranque, las particiones y el contrato entre las dos imágenes están en <a href="loader.html">Manual del loader</a>.</p>
+<blockquote><strong>Regla de oro:</strong> el kernel no inicializa PSRAM, relojes, MMU ni flash. Todo eso ya lo hizo IDF. Xinu solo valida el <code>bootinfo</code>, publica la ventana de PSRAM, inicializa sus tablas y arranca.</blockquote>
+<hr>
+<nav class="toc"><h2>Índice</h2><ul><li class="l2"><a href="#1-arquitectura-en-una-página">1. Arquitectura en una página</a></li><li class="l3"><a href="#11-qué-es-amp">1.1 Qué es AMP</a></li><li class="l3"><a href="#12-qué-no-es">1.2 Qué NO es</a></li><li class="l2"><a href="#2-mapa-del-árbol">2. Mapa del árbol</a></li><li class="l3"><a href="#21-ficheros-de-arranque">2.1 Ficheros de arranque</a></li><li class="l3"><a href="#22-configuración">2.2 Configuración</a></li><li class="l2"><a href="#3-arranque-memoria-y-heap">3. Arranque, memoria y heap</a></li><li class="l3"><a href="#31-secuencia">3.1 Secuencia</a></li><li class="l3"><a href="#32-mapa-de-memoria">3.2 Mapa de memoria</a></li><li class="l3"><a href="#33-reglas-de-memoria">3.3 Reglas de memoria</a></li><li class="l3"><a href="#34-hilos-y-pilas">3.4 Hilos y pilas</a></li><li class="l2"><a href="#4-sistema-de-build">4. Sistema de build</a></li><li class="l3"><a href="#41-compilar-el-payload">4.1 Compilar el payload</a></li><li class="l3"><a href="#42-configuración-normal-vs-prueba">4.2 Configuración normal vs prueba</a></li><li class="l3"><a href="#43-añadir-un-fichero-c">4.3 Añadir un fichero .c</a></li><li class="l3"><a href="#44-añadir-un-driver">4.4 Añadir un driver</a></li><li class="l2"><a href="#5-la-abstracción-del-kernel">5. La abstracción del kernel</a></li><li class="l3"><a href="#51-devtab-todo-es-un-dispositivo">5.1 devtab[]: todo es un dispositivo</a></li><li class="l3"><a href="#52-syscalls">5.2 Syscalls</a></li><li class="l3"><a href="#53-concurrencia">5.3 Concurrencia</a></li><li class="l3"><a href="#54-context-switch">5.4 Context switch</a></li><li class="l2"><a href="#6-archivos-por-módulo">6. Archivos por módulo</a></li><li class="l3"><a href="#61-system">6.1 system/</a></li><li class="l3"><a href="#62-device">6.2 device/</a></li><li class="l3"><a href="#63-network">6.3 network/</a></li><li class="l3"><a href="#64-fs">6.4 fs/</a></li><li class="l3"><a href="#65-shell">6.5 shell/</a></li><li class="l3"><a href="#66-jvm">6.6 jvm/</a></li><li class="l3"><a href="#67-lib">6.7 lib/</a></li><li class="l3"><a href="#68-mailbox">6.8 mailbox/</a></li><li class="l3"><a href="#69-loader">6.9 loader/</a></li><li class="l3"><a href="#610-compile">6.10 compile/</a></li><li class="l3"><a href="#611-tools">6.11 tools/</a></li><li class="l3"><a href="#612-web">6.12 web/</a></li><li class="l2"><a href="#7-comandos-del-shell">7. Comandos del shell</a></li><li class="l3"><a href="#71-comandos-presentes-pero-no-registrados">7.1 Comandos presentes pero no registrados</a></li><li class="l3"><a href="#72-comandos-de-diagnóstico-recomendados">7.2 Comandos de diagnóstico recomendados</a></li><li class="l3"><a href="#73-comandos-de-red-y-ficheros">7.3 Comandos de red y ficheros</a></li><li class="l2"><a href="#8-comandos-udp">8. Comandos UDP</a></li><li class="l2"><a href="#9-http-gestor-de-archivos-y-terminal-web">9. HTTP, gestor de archivos y terminal web</a></li><li class="l3"><a href="#91-endpoints">9.1 Endpoints</a></li><li class="l3"><a href="#92-límites">9.2 Límites</a></li><li class="l3"><a href="#93-gat-gestor-de-archivos-y-terminal">9.3 GAT: Gestor de Archivos y Terminal</a></li><li class="l2"><a href="#10-modificar-el-kernel">10. Modificar el kernel</a></li><li class="l3"><a href="#101-añadir-un-comando">10.1 Añadir un comando</a></li><li class="l3"><a href="#102-añadir-un-servicio-de-arranque">10.2 Añadir un servicio de arranque</a></li><li class="l3"><a href="#103-añadir-una-llamada-al-sistema">10.3 Añadir una llamada al sistema</a></li><li class="l3"><a href="#104-cambiar-la-configuración">10.4 Cambiar la configuración</a></li><li class="l3"><a href="#105-errores-típicos">10.5 Errores típicos</a></li><li class="l2"><a href="#11-portar-el-kernel">11. Portar el kernel</a></li><li class="l3"><a href="#111-qué-está-abstraído">11.1 Qué está abstraído</a></li><li class="l3"><a href="#112-pasos-para-una-placa-nueva">11.2 Pasos para una placa nueva</a></li><li class="l3"><a href="#113-qué-no-se-puede-cambiar-a-la-ligera">11.3 Qué no se puede cambiar a la ligera</a></li><li class="l2"><a href="#12-simple-jvm">12. Simple JVM</a></li><li class="l3"><a href="#121-qué-es">12.1 Qué es</a></li><li class="l3"><a href="#122-estado-y-memoria">12.2 Estado y memoria</a></li><li class="l3"><a href="#123-no-hay-gc">12.3 No hay GC</a></li><li class="l3"><a href="#124-natives">12.4 Natives</a></li><li class="l3"><a href="#125-limitaciones">12.5 Limitaciones</a></li><li class="l2"><a href="#13-flujos-de-trabajo">13. Flujos de trabajo</a></li><li class="l3"><a href="#131-compilar-y-flashear">13.1 Compilar y flashear</a></li><li class="l3"><a href="#132-compilar-el-loader">13.2 Compilar el loader</a></li><li class="l3"><a href="#133-compilar-java">13.3 Compilar Java</a></li><li class="l3"><a href="#134-generar-la-web">13.4 Generar la web</a></li><li class="l3"><a href="#135-pruebas-mínimas">13.5 Pruebas mínimas</a></li><li class="l2"><a href="#14-problemas-típicos">14. Problemas típicos</a></li><li class="l2"><a href="#15-inventario-completo">15. Inventario completo</a></li><li class="l2"><a href="#16-referencias">16. Referencias</a></li></ul></nav>
+<h2 id="1-arquitectura-en-una-página">1. Arquitectura en una página</h2>
+<pre><code class="lang-text">                         core 0                         core 1
+┌──────────────────────────────────────┐   ┌──────────────────────────────────┐
+│ ESP-IDF + FreeRTOS                   │   │ Xinu AMP                         │
+│  - bootloader, particiones           │   │  - scheduler, hilos, semáforos   │
+│  - reloj, PSRAM, MMU, cache          │   │  - devtab, drivers               │
+│  - monta SD y actualiza xinu.img     │   │  - red W5500, TCP/UDP/ICMP/DHCP  │
+│  - mapea la partición en 0x42100000  │   │  - FAT sobre microSD             │
+│  - salta a _start                    │   │  - shell, HTTP, Telnet, UDP      │
+└──────────────────────────────────────┘   │  - Simple JVM sin GC             │
+                                           └──────────────────────────────────┘</code></pre>
+<h3 id="11-qué-es-amp">1.1 Qué es AMP</h3>
+<p>AMP significa <strong>Asymmetric Multi-Processing</strong>: dos núcleos ejecutan dos sistemas distintos, no dos instancias del mismo kernel. No hay memoria compartida gestionada por ambos, no hay un scheduler común y no hay llamadas cruzadas.</p>
+<ul><li>Core 0: IDF/FreeRTOS, dueño del arranque.</li><li>Core 1: Xinu, dueño del payload.</li><li>Comunicación actual: ninguna. El core 0 se queda en <code>vTaskDelay()</code>.</li></ul>
+<h3 id="12-qué-no-es">1.2 Qué NO es</h3>
+<ul><li>No es un kernel bare-metal que arranca desde la ROM.</li><li>No es una app de IDF que llama a Xinu como librería.</li><li>No es SMP: Xinu no usa el core 0.</li><li>No es un sistema de dos imágenes con actualización A/B.</li></ul>
+<hr>
+<h2 id="2-mapa-del-árbol">2. Mapa del árbol</h2>
+<table>
+<thead><tr><th>Directorio</th><th>Rol</th></tr></thead>
+<tbody>
+<tr><td><code>amp/</code></td><td>Reservado; hoy está vacío</td></tr>
+<tr><td><code>apps/</code></td><td>Comandos sueltos del shell (<code>date</code>, <code>rdate</code>)</td></tr>
+<tr><td><code>compile/</code></td><td>Makefile, configuración, linker y artefactos de build</td></tr>
+<tr><td><code>device/</code></td><td>Drivers y dispositivos de Xinu</td></tr>
+<tr><td><code>docs/</code></td><td>Manuales Markdown y documentación Sphinx heredada</td></tr>
+<tr><td><code>fs/</code></td><td>Sistema de archivos FAT</td></tr>
+<tr><td><code>include/</code></td><td>Cabeceras públicas del kernel</td></tr>
+<tr><td><code>jvm/</code></td><td>Núcleo portable de la Simple JVM</td></tr>
+<tr><td><code>lib/</code></td><td><code>libxc</code>: libc mínima de Xinu</td></tr>
+<tr><td><code>loader/</code></td><td><code>start.S</code> y reglas de arranque del payload</td></tr>
+<tr><td><code>mailbox/</code></td><td>Implementación de mailboxes</td></tr>
+<tr><td><code>network/</code></td><td>Pila de red: ARP, IPv4, ICMP, DHCP, UDP</td></tr>
+<tr><td><code>sd/</code></td><td>Contenido de ejemplo para la microSD</td></tr>
+<tr><td><code>shell/</code></td><td>Shell, comandos, HTTP, API de archivos y terminal web</td></tr>
+<tr><td><code>system/</code></td><td>Núcleo: hilos, semáforos, monitores, heap, reloj, syscalls</td></tr>
+<tr><td><code>tools/</code></td><td>Herramientas de empaquetado y utilidades</td></tr>
+<tr><td><code>web/</code></td><td>Dashboard, manuales HTML y build web</td></tr>
+</tbody></table>
+<h3 id="21-ficheros-de-arranque">2.1 Ficheros de arranque</h3>
+<table>
+<thead><tr><th>Fichero</th><th>Qué hace</th></tr></thead>
+<tbody>
+<tr><td><code>loader/platforms/esp32s3/start.S</code></td><td>Entrada <code>_start</code>: enmascara interrupciones, pone VECBASE, copia <code>.rodata</code>/<code>.data</code>, ceroa <code>.bss</code>/<code>.stacks</code>, salta a <code>nulluser</code></td></tr>
+<tr><td><code>system/initialize.c</code></td><td><code>nulluser()</code>: <code>platforminit()</code>, <code>sysinit()</code>, <code>enable()</code>, crea <code>MAIN</code></td></tr>
+<tr><td><code>system/platforms/esp32s3/platforminit.c</code></td><td>Valida <code>bootinfo</code>, publica PSRAM, habilita relojes, apaga watchdogs</td></tr>
+<tr><td><code>system/main.c</code></td><td><code>main()</code>: consola, TFT, ETH0, <code>netup</code>, Telnet, HTTP, UDP y shell serie</td></tr>
+<tr><td><code>system/conf.c</code></td><td>Generado desde <code>xinu.conf</code>; <strong>no se edita</strong></td></tr>
+<tr><td><code>include/conf.h</code></td><td>Generado desde <code>xinu.conf</code>; <strong>no se edita</strong></td></tr>
+<tr><td><code>compile/platforms/esp32s3/ld-amp.script</code></td><td>Layout XIP/PSRAM del payload</td></tr>
+</tbody></table>
+<h3 id="22-configuración">2.2 Configuración</h3>
+<table>
+<thead><tr><th>Fichero</th><th>Qué hace</th></tr></thead>
+<tbody>
+<tr><td><code>compile/platforms/esp32s3/xinu.conf</code></td><td>Configuración completa: SD, TFT, W5500, RGB, JVM</td></tr>
+<tr><td><code>compile/platforms/esp32s3/xinu-test.conf</code></td><td>Configuración de prueba: periféricos a <code>null</code></td></tr>
+<tr><td><code>compile/platforms/esp32s3/platformVars</code></td><td>Flags, componentes y drivers del build</td></tr>
+<tr><td><code>compile/Makefile</code></td><td>Reglas de compilación, <code>s3-compile</code>, <code>s3-flash</code></td></tr>
+<tr><td><code>env.sh</code></td><td>Añade el toolchain <code>xtensa-esp32s3-elf-*</code> al <code>PATH</code></td></tr>
+</tbody></table>
+<hr>
+<h2 id="3-arranque-memoria-y-heap">3. Arranque, memoria y heap</h2>
+<h3 id="31-secuencia">3.1 Secuencia</h3>
+<pre><code class="lang-text">_start (start.S)
+  ├─ enmascara interrupciones y limpia CCOMPARE
+  ├─ VECBASE = _xt_vector_table
+  ├─ copia .rodata desde XIP a PSRAM
+  ├─ copia .data desde XIP a PSRAM
+  ├─ ceroa .bss y .stacks
+  ├─ xinu_bootinfo = a2
+  ├─ sp = _nullstk_top
+  └─ nulluser()
+       ├─ platforminit()
+       ├─ sysinit()
+       │   ├─ heapInit(_end, fin de PSRAM)
+       │   ├─ thrtab, semtab, montab, bfptab
+       │   ├─ mailboxInit()
+       │   ├─ devtab[i].init()
+       │   └─ netInit()
+       ├─ enable()
+       └─ create(MAIN)
+            └─ main()
+                ├─ open(CONSOLE, SERIAL0)
+                ├─ open(TFT0), open(ETH0)
+                ├─ xsh_netup(&quot;ETH0&quot;)
+                ├─ xsh_telnetserver(&quot;-n 1&quot;)
+                ├─ xsh_httpd(&quot;80&quot;)
+                ├─ xsh_udpserver(&quot;5000&quot;)
+                └─ create(SHELL0)</code></pre>
+<p>No existe <code>system/boot.c</code> ni <code>bootsvc_tab[]</code> en este árbol. <code>main()</code> llama directamente a los comandos de arranque. Si añades un servicio, edita <code>system/main.c</code>.</p>
+<h3 id="32-mapa-de-memoria">3.2 Mapa de memoria</h3>
+<table>
+<thead><tr><th>Región</th><th>Dirección</th><th>Uso</th></tr></thead>
+<tbody>
+<tr><td>XIP</td><td><code>0x42100000</code></td><td><code>.vector</code>, <code>.init</code>, <code>.text</code></td></tr>
+<tr><td>PSRAM</td><td><code>0x3D801000</code></td><td><code>.rodata</code>, <code>.data</code>, <code>.bss</code>, <code>.stacks</code>, heap</td></tr>
+<tr><td>Pila de pánico</td><td><code>_stacks_start.._panicstk_top</code></td><td>8 KiB</td></tr>
+<tr><td>Pila del hilo nulo</td><td><code>_panicstk_top.._nullstk_top</code></td><td>8 KiB</td></tr>
+<tr><td>Heap</td><td><code>_end..psram_va+psram_size</code></td><td>Todo lo demás</td></tr>
+</tbody></table>
+<p>El heap es <strong>uno solo</strong>, en PSRAM. <code>memget</code>, <code>memfree</code>, <code>stkget</code>, <code>malloc</code>, <code>free</code>, <code>calloc</code> y <code>realloc</code> usan la misma lista libre (<code>memlist</code>). No hay heap interno de DRAM ni <code>psram_malloc</code> separado.</p>
+<h3 id="33-reglas-de-memoria">3.3 Reglas de memoria</h3>
+<ul><li>No pongas buffers de varios KiB en la pila de 4 KiB.</li><li>Usa <code>memget</code>/<code>memfree</code> o <code>malloc</code>/<code>free</code> para buffers grandes.</li><li>Libera con la <strong>misma longitud</strong> que pediste.</li><li>El heap no puede solaparse con <code>.stacks</code>: <code>_end</code> está después de las pilas.</li><li><code>psram</code> y <code>free</code> muestran el estado real; <code>mem</code> muestra el heap del kernel.</li></ul>
+<h3 id="34-hilos-y-pilas">3.4 Hilos y pilas</h3>
+<table>
+<thead><tr><th>Constante</th><th>Valor</th><th>Uso</th></tr></thead>
+<tbody>
+<tr><td><code>INITSTK</code></td><td>4096 B</td><td>Hilos normales, shell</td></tr>
+<tr><td><code>JVM_STK</code></td><td>65536 B</td><td>Hilo de la JVM</td></tr>
+<tr><td><code>HTTPD_STK</code></td><td>8192 B</td><td>Servidor HTTP</td></tr>
+<tr><td><code>WEBTERM_STK</code></td><td>16384 B</td><td>Worker del terminal web</td></tr>
+<tr><td><code>NET_THR_STK</code></td><td>2048 B</td><td>Recepción y daemons de red</td></tr>
+</tbody></table>
+<p><code>create()</code> asigna la pila con <code>stkget()</code>, que sale del heap de PSRAM. Si no hay memoria, <code>create()</code> devuelve <code>SYSERR</code>.</p>
+<hr>
+<h2 id="4-sistema-de-build">4. Sistema de build</h2>
+<h3 id="41-compilar-el-payload">4.1 Compilar el payload</h3>
+<pre><code class="lang-sh">cd /home/daniel/xinu-s3-amp
+make kernel S3_CONFIG=platforms/esp32s3/xinu-test.conf</code></pre>
+<p>o:</p>
+<pre><code class="lang-sh">cd compile
+source ../env.sh
+make clean
+make -j4 CONFIG=platforms/esp32s3/xinu-test.conf</code></pre>
+<p>El resultado es <code>compile/xinu.img</code> (binario crudo) y <code>compile/xinu.elf</code>.</p>
+<h3 id="42-configuración-normal-vs-prueba">4.2 Configuración normal vs prueba</h3>
+<table>
+<thead><tr><th>Config</th><th>Periféricos</th><th>Uso</th></tr></thead>
+<tbody>
+<tr><td><code>xinu.conf</code></td><td>SD, TFT, W5500, RGB, JVM</td><td>Placa completa</td></tr>
+<tr><td><code>xinu-test.conf</code></td><td>SD/TFT/ETH/RGB a <code>null</code></td><td>Placa N16R8 sin periféricos</td></tr>
+</tbody></table>
+<p>Al cambiar de configuración hay que borrar <code>include/conf.h</code> y <code>system/conf.c</code> para forzar la regeneración. El target <code>s3-compile</code> ya lo hace.</p>
+<h3 id="43-añadir-un-fichero-c">4.3 Añadir un fichero <code>.c</code></h3>
+<ol><li>Crea el fichero en el directorio correcto.</li><li>Añádelo a <code>C_FILES</code> en el <code>Makerules</code> de ese directorio.</li><li>Si es un directorio nuevo, añádelo a <code>APPCOMPS</code> o <code>DEVICES</code> en</li></ol>
+<p><code>compile/platforms/esp32s3/platformVars</code>.</p>
+<ol><li>Recompila.</li></ol>
+<h3 id="44-añadir-un-driver">4.4 Añadir un driver</h3>
+<ol><li>Crea <code>device/midriver/</code> con <code>miInit.c</code>, <code>miOpen.c</code>, <code>miRead.c</code>,</li></ol>
+<p><code>miWrite.c</code>, <code>miControl.c</code>, <code>miClose.c</code> y <code>Makerules</code>.</p>
+<ol><li>Añade el tipo y la instancia en <code>xinu.conf</code>.</li><li>Añade <code>midriver</code> a <code>DEVICES</code> en <code>platformVars</code>.</li><li>No edites <code>system/conf.c</code>: se genera.</li></ol>
+<hr>
+<h2 id="5-la-abstracción-del-kernel">5. La abstracción del kernel</h2>
+<h3 id="51-devtab-todo-es-un-dispositivo">5.1 <code>devtab[]</code>: todo es un dispositivo</h3>
+<p>Xinu no llama a <code>w5500Read()</code> desde la red. Llama a <code>read(ETH0)</code>. Cada entrada de <code>devtab[]</code> tiene un bloque de funciones:</p>
+<pre><code class="lang-c">struct devsw {
+    int  (*init)(device *);
+    int  (*open)(device *, ...);
+    int  (*close)(device *);
+    int  (*read)(device *, void *, int);
+    int  (*write)(device *, const void *, int);
+    int  (*getc)(device *);
+    int  (*putc)(device *, char);
+    int  (*control)(device *, int, long, long);
+};</code></pre>
+<p>Ventajas:</p>
+<ul><li>el shell, la red y la JVM no conocen el hardware;</li><li>se puede sustituir un driver por <code>null</code> en <code>xinu-test.conf</code>;</li><li>el mismo código de alto nivel funciona en placa completa y en pruebas.</li></ul>
+<h3 id="52-syscalls">5.2 Syscalls</h3>
+<p>Las llamadas al kernel (<code>create</code>, <code>wait</code>, <code>signal</code>, <code>sleep</code>, <code>read</code>, <code>write</code>, <code>open</code>, <code>close</code>, <code>control</code>, <code>kill</code>, <code>receive</code>, <code>send</code>) son funciones C con <code>syscall</code> en la cabecera. En este port no hay cambio de anillo: todo corre en modo supervisor. <code>syscall</code> es una marca de intención, no una instrucción de trampa.</p>
+<h3 id="53-concurrencia">5.3 Concurrencia</h3>
+<table>
+<thead><tr><th>Mecanismo</th><th>Uso típico</th><th>Dato</th></tr></thead>
+<tbody>
+<tr><td>Semáforo</td><td>Contar recursos o esperar evento</td><td>No</td></tr>
+<tr><td>Monitor</td><td>Exclusión mutua recursiva</td><td>No</td></tr>
+<tr><td>Mailbox</td><td>Cola de trabajo de un servicio</td><td>1 <code>int</code></td></tr>
+<tr><td><code>send</code>/<code>receive</code></td><td>Mensaje punto a punto a un <code>tid</code></td><td>1 <code>int</code></td></tr>
+</tbody></table>
+<p>Reglas:</p>
+<ul><li>no duermas con un monitor cogido;</li><li>no llames a <code>wait</code>, <code>sleep</code> ni <code>lock</code> desde una ISR;</li><li>un <code>lock</code> por cada <code>unlock</code>;</li><li>si el mensaje es un puntero, define quién libera.</li></ul>
+<h3 id="54-context-switch">5.4 Context switch</h3>
+<p>El ESP32-S3 usa ABI <strong>CALL0</strong>: no hay ventanas de registros. <code>ctxsw.S</code> guarda <code>a0</code>, <code>a2..a15</code>, <code>PS</code>, <code>PC</code> y el stack pointer. Por eso el cambio de contexto es un save/restore plano, no un spill de ventanas.</p>
+<hr>
+<h2 id="6-archivos-por-módulo">6. Archivos por módulo</h2>
+<h3 id="61-system">6.1 <code>system/</code></h3>
+<table>
+<thead><tr><th>Fichero</th><th>Rol</th></tr></thead>
+<tbody>
+<tr><td><code>initialize.c</code></td><td><code>nulluser()</code>, <code>sysinit()</code>, tablas del kernel</td></tr>
+<tr><td><code>main.c</code></td><td>Arranque de consola, TFT, red, servidores y shell</td></tr>
+<tr><td><code>create.c</code></td><td>Crear hilos</td></tr>
+<tr><td><code>ready.c</code>, <code>resched.c</code>, <code>yield.c</code></td><td>Scheduler</td></tr>
+<tr><td><code>sleep.c</code>, <code>wakeup.c</code>, <code>unsleep.c</code></td><td>Temporización</td></tr>
+<tr><td><code>kill.c</code>, <code>suspend.c</code>, <code>resume.c</code></td><td>Ciclo de vida</td></tr>
+<tr><td><code>semcreate.c</code>, <code>wait.c</code>, <code>signal.c</code>, <code>semfree.c</code></td><td>Semáforos</td></tr>
+<tr><td><code>moncreate.c</code>, <code>lock.c</code>, <code>unlock.c</code>, <code>monfree.c</code></td><td>Monitores</td></tr>
+<tr><td><code>send.c</code>, <code>receive.c</code>, <code>recvtime.c</code>, <code>recvclr.c</code></td><td>Mensajes</td></tr>
+<tr><td><code>open.c</code>, <code>close.c</code>, <code>read.c</code>, <code>write.c</code>, <code>getc.c</code>, <code>putc.c</code>, <code>control.c</code></td><td>Syscalls de dispositivos</td></tr>
+<tr><td><code>getdev.c</code>, <code>conf.c</code></td><td>Despacho a <code>devtab[]</code></td></tr>
+<tr><td><code>heap.c</code>, <code>memget.c</code>, <code>memfree.c</code>, <code>stkget.c</code></td><td>Heap único de PSRAM</td></tr>
+<tr><td><code>bfpalloc.c</code>, <code>bfpfree.c</code>, <code>bufget.c</code>, <code>buffree.c</code></td><td>Pools de buffers de red</td></tr>
+<tr><td><code>clkinit.c</code>, <code>clkhandler.c</code></td><td>Reloj, ticks, CPU%</td></tr>
+<tr><td><code>softfloat.c</code></td><td>Coma flotante por software (sin <code>libgcc</code>)</td></tr>
+<tr><td><code>platforms/esp32s3/ctxsw.S</code></td><td>Cambio de contexto CALL0</td></tr>
+<tr><td><code>platforms/esp32s3/</code></td><td><code>platforminit.c</code>, <code>intc.c</code>, <code>espclk.c</code>, <code>panic.c</code></td></tr>
+</tbody></table>
+<h3 id="62-device">6.2 <code>device/</code></h3>
+<table>
+<thead><tr><th>Directorio</th><th>Rol</th></tr></thead>
+<tbody>
+<tr><td><code>button/</code></td><td>Botón BOOT por GPIO0, polling</td></tr>
+<tr><td><code>jvm/</code></td><td>Natives y glue de la JVM en el target</td></tr>
+<tr><td><code>memtty/</code></td><td>Dispositivo de captura de salida para el terminal web</td></tr>
+<tr><td><code>nam/</code></td><td>Namespace manager: monta dispositivos en <code>/dev</code></td></tr>
+<tr><td><code>raw/</code></td><td>Acceso raw a tramas Ethernet</td></tr>
+<tr><td><code>rgb/</code></td><td>LED RGB discreto (GPIO2/4/6)</td></tr>
+<tr><td><code>sd/</code></td><td>Driver SDMMC 4 bits</td></tr>
+<tr><td><code>tcp/</code></td><td>Implementación TCP</td></tr>
+<tr><td><code>telnet/</code></td><td>TTY sobre TCP</td></tr>
+<tr><td><code>tft/</code></td><td>ST7735 128×160</td></tr>
+<tr><td><code>tty/</code></td><td>Capa de línea sobre UART/Telnet</td></tr>
+<tr><td><code>udp/</code></td><td>Implementación UDP</td></tr>
+<tr><td><code>uart-esp32s3/</code></td><td>UART0</td></tr>
+<tr><td><code>w5500/</code></td><td>Ethernet W5500 por SPI2</td></tr>
+</tbody></table>
+<h3 id="63-network">6.3 <code>network/</code></h3>
+<table>
+<thead><tr><th>Directorio</th><th>Rol</th></tr></thead>
+<tbody>
+<tr><td><code>net/</code></td><td><code>struct netif</code>, <code>netInit</code>, <code>netUp</code>, <code>netRecv</code>, <code>netSend</code></td></tr>
+<tr><td><code>ipv4/</code></td><td>Recepción, envío, checksum, demux</td></tr>
+<tr><td><code>arp/</code></td><td>Tabla ARP, daemon, resolución</td></tr>
+<tr><td><code>icmp/</code></td><td>Echo request/reply, ping</td></tr>
+<tr><td><code>dhcp/</code></td><td>Cliente DHCP</td></tr>
+<tr><td><code>udp/</code></td><td>Pila UDP (si no está en <code>device/udp</code>)</td></tr>
+<tr><td><code>dns/</code></td><td>Resolución DNS mínima</td></tr>
+</tbody></table>
+<p>La red usa el W5500 en <strong>MACRAW</strong>: el chip solo mueve tramas; ARP, IPv4, ICMP, TCP y UDP los implementa Xinu.</p>
+<h3 id="64-fs">6.4 <code>fs/</code></h3>
+<table>
+<thead><tr><th>Fichero</th><th>Rol</th></tr></thead>
+<tbody>
+<tr><td><code>Src/fat_access.c</code></td><td>Acceso a FAT</td></tr>
+<tr><td><code>Src/fat_filelib.c</code></td><td><code>fopen</code>, <code>fread</code>, <code>fwrite</code>, <code>fclose</code>, directorios</td></tr>
+<tr><td><code>Src/fat_mount.c</code></td><td>Montaje/desmontaje</td></tr>
+<tr><td><code>include/fat_port.h</code></td><td>Adaptación a Xinu</td></tr>
+<tr><td><code>include/fat_filelib.h</code></td><td>API de ficheros</td></tr>
+</tbody></table>
+<p>La FAT no es reentrante: se protege con <code>s_fat_mon</code>. El gestor de archivos y la JVM comparten el mismo montaje.</p>
+<h3 id="65-shell">6.5 <code>shell/</code></h3>
+<table>
+<thead><tr><th>Fichero</th><th>Rol</th></tr></thead>
+<tbody>
+<tr><td><code>shell.c</code></td><td>Intérprete, <code>commandtab[]</code>, redirecciones, background</td></tr>
+<tr><td><code>xsh_*.c</code></td><td>Un comando por fichero</td></tr>
+<tr><td><code>xsh_httpd.c</code></td><td>Servidor HTTP y ficheros estáticos</td></tr>
+<tr><td><code>httpapi.c</code></td><td>API JSON de archivos y terminal</td></tr>
+<tr><td><code>webterm.c</code></td><td>Worker del terminal web y <code>MEMTTY0</code></td></tr>
+<tr><td><code>xsh_udpserver.c</code></td><td>Servidor UDP de comandos</td></tr>
+<tr><td><code>xsh_netup.c</code></td><td>Arranque de red, DHCP y espera de link</td></tr>
+</tbody></table>
+<h3 id="66-jvm">6.6 <code>jvm/</code></h3>
+<table>
+<thead><tr><th>Fichero</th><th>Rol</th></tr></thead>
+<tbody>
+<tr><td><code>simple_jvm.h</code></td><td>Estado de la VM, pools, heap, frames</td></tr>
+<tr><td><code>class_parser.c</code></td><td>Cabecera <code>.class</code>, interfaces, campos, métodos</td></tr>
+<tr><td><code>constant_pool_parser.c</code></td><td>Constant pool</td></tr>
+<tr><td><code>field_pool_parser.c</code>, <code>method_pool_parser.c</code></td><td>Campos y métodos</td></tr>
+<tr><td><code>bytecodes.c</code></td><td>Intérprete de bytecodes</td></tr>
+<tr><td><code>heap.c</code></td><td>Objetos, arrays, Strings, StringBuilder</td></tr>
+<tr><td><code>stack.c</code></td><td>Pila de operandos y frames</td></tr>
+<tr><td><code>java_lib.c</code></td><td>Tabla de natives</td></tr>
+<tr><td><code>java_std.c</code></td><td>Natives de <code>java.lang</code></td></tr>
+<tr><td><code>jvm_run.c</code></td><td>Carga, <code>&lt;clinit&gt;</code>, <code>main</code>, liberación</td></tr>
+<tr><td><code>free_pool.c</code></td><td>Libera atributos de métodos</td></tr>
+<tr><td><code>jvm_io.h</code>, <code>jvm_map.h</code></td><td>Seam de plataforma</td></tr>
+<tr><td><code>lib/esp32p4/*.java</code></td><td>Clases de librería</td></tr>
+<tr><td><code>tests/*.java</code></td><td>Pruebas de la VM</td></tr>
+<tr><td><code>build-examples.sh</code></td><td>Compila librerías, tests y apps</td></tr>
+</tbody></table>
+<h3 id="67-lib">6.7 <code>lib/</code></h3>
+<p><code>lib/libxc/</code> es la libc mínima: <code>printf</code>, <code>malloc</code>, <code>free</code>, <code>str*</code>, <code>mem*</code>, <code>qsort</code>, <code>doprnt</code>, etc. No se enlaza <code>libgcc</code> porque el toolchain solo trae una versión windowed, incompatible con CALL0. La coma flotante está en <code>system/softfloat.c</code>.</p>
+<h3 id="68-mailbox">6.8 <code>mailbox/</code></h3>
+<p>Implementa las mailboxes: array circular, semáforo de lleno y semáforo de vacío. Se usan en ARP e ICMP para no bloquear el hilo de recepción.</p>
+<h3 id="69-loader">6.9 <code>loader/</code></h3>
+<table>
+<thead><tr><th>Fichero</th><th>Rol</th></tr></thead>
+<tbody>
+<tr><td><code>loader/platforms/esp32s3/start.S</code></td><td>Entrada <code>_start</code> del payload</td></tr>
+<tr><td><code>loader/platforms/esp32s3/Makerules</code></td><td>Reglas del arranque</td></tr>
+<tr><td><code>compile/platforms/esp32s3/ld-amp.script</code></td><td>Layout XIP/PSRAM</td></tr>
+<tr><td><code>system/platforms/esp32s3/panic.c</code></td><td>Pánico y volcado</td></tr>
+<tr><td><code>system/platforms/esp32s3/intc.c</code></td><td>Interrupciones Xtensa</td></tr>
+<tr><td><code>system/platforms/esp32s3/espclk.c</code></td><td>Reloj desde <code>bootinfo</code></td></tr>
+</tbody></table>
+<h3 id="610-compile">6.10 <code>compile/</code></h3>
+<table>
+<thead><tr><th>Fichero</th><th>Rol</th></tr></thead>
+<tbody>
+<tr><td><code>Makefile</code></td><td>Build principal</td></tr>
+<tr><td><code>platforms/esp32s3/platformVars</code></td><td>Flags y componentes</td></tr>
+<tr><td><code>platforms/esp32s3/xinu.conf</code></td><td>Config normal</td></tr>
+<tr><td><code>platforms/esp32s3/xinu-test.conf</code></td><td>Config de prueba</td></tr>
+<tr><td><code>platforms/esp32s3/ld-amp.script</code></td><td>Linker del payload</td></tr>
+<tr><td><code>config/</code></td><td>Generador de <code>conf.h</code> y <code>conf.c</code></td></tr>
+</tbody></table>
+<h3 id="611-tools">6.11 <code>tools/</code></h3>
+<table>
+<thead><tr><th>Fichero</th><th>Rol</th></tr></thead>
+<tbody>
+<tr><td><code>mkxinuimg.py</code></td><td>Empaquetador opcional <code>XIMG</code> (no activo)</td></tr>
+<tr><td><code>gen_inventory.py</code></td><td>Genera el inventario completo del árbol</td></tr>
+</tbody></table>
+<h3 id="612-web">6.12 <code>web/</code></h3>
+<table>
+<thead><tr><th>Fichero</th><th>Rol</th></tr></thead>
+<tbody>
+<tr><td><code>index.html</code></td><td>Dashboard, terminal web y gestor de archivos</td></tr>
+<tr><td><code>manual.html</code></td><td>Manual del kernel en HTML</td></tr>
+<tr><td><code>loader.html</code></td><td>Manual del loader en HTML</td></tr>
+<tr><td><code>amp.html</code></td><td>Este manual en HTML</td></tr>
+<tr><td><code>natives.html</code></td><td>Tutorial de natives</td></tr>
+<tr><td><code>inventory.html</code></td><td>Inventario de archivos</td></tr>
+<tr><td><code>docs.html</code></td><td>Documentación heredada</td></tr>
+<tr><td><code>build_web.py</code></td><td>Genera y valida las páginas</td></tr>
+<tr><td><code>md2html.py</code></td><td>Conversor Markdown → HTML</td></tr>
+</tbody></table>
+<hr>
+<h2 id="7-comandos-del-shell">7. Comandos del shell</h2>
+<p>El prompt es <code>xsh$</code>. La shell está disponible por UART0 y por Telnet. Los comandos con <code>--help</code> imprimen su uso. La tabla siguiente resume <strong>todos</strong> los comandos registrados en <code>commandtab[]</code>.</p>
+<table>
+<thead><tr><th>Comando</th><th>Uso</th><th>Qué hace / para qué</th></tr></thead>
+<tbody>
+<tr><td><code>arp</code></td><td><code>arp</code></td><td>Muestra la tabla ARP (IP ↔ MAC). Diagnóstico de red</td></tr>
+<tr><td><code>button</code></td><td><code>button [wait [ticks]]</code></td><td>Estado del botón BOOT; <code>wait</code> bloquea hasta pulsación o timeout</td></tr>
+<tr><td><code>cat</code></td><td><code>cat &lt;file&gt;</code></td><td>Vuelca un fichero de texto a la salida</td></tr>
+<tr><td><code>cd</code></td><td><code>cd &lt;dir&gt;</code></td><td>Cambia el directorio actual de la FAT</td></tr>
+<tr><td><code>clear</code></td><td><code>clear</code></td><td>Limpia la pantalla del terminal</td></tr>
+<tr><td><code>config</code></td><td><code>config [command]</code></td><td>Muestra la configuración del kernel o si un comando es builtin/externo</td></tr>
+<tr><td><code>cp</code></td><td><code>cp &lt;src&gt; &lt;dst&gt;</code></td><td>Copia un fichero</td></tr>
+<tr><td><code>curl</code></td><td><code>curl &lt;url&gt; [out]</code></td><td>Alias de <code>wget</code></td></tr>
+<tr><td><code>date</code></td><td><code>date</code></td><td>Muestra la fecha/hora del RTC (puede estar en 1900)</td></tr>
+<tr><td><code>df</code></td><td><code>df</code></td><td>Espacio libre/usado de la FAT</td></tr>
+<tr><td><code>dns</code></td><td><code>dns &lt;host&gt;</code></td><td>Resuelve un nombre DNS</td></tr>
+<tr><td><code>du</code></td><td><code>du [path]</code></td><td>Tamaño recursivo de ficheros</td></tr>
+<tr><td><code>dumpfile</code></td><td><code>dumpfile &lt;file&gt; [max]</code></td><td>Volcado hexadecimal + ASCII</td></tr>
+<tr><td><code>echo</code></td><td><code>echo [args...]</code></td><td>Imprime argumentos; útil para scripts</td></tr>
+<tr><td><code>exit</code></td><td><code>exit</code></td><td>Cierra la shell</td></tr>
+<tr><td><code>fat</code></td><td><code>fat &lt;mount|ls|cat|write|format&gt; ...</code></td><td>Operaciones directas sobre FAT</td></tr>
+<tr><td><code>free</code></td><td><code>free [-v]</code></td><td>Resumen de imagen, pilas, heap y pools; <code>-v</code> vuelca la lista libre</td></tr>
+<tr><td><code>gpio</code></td><td><code>gpio read|write|mode &lt;pin&gt; [0|1|in|out]</code></td><td>Lee/escribe/configura un GPIO</td></tr>
+<tr><td><code>head</code></td><td><code>head [-n N] &lt;file&gt;</code></td><td>Primeras N líneas</td></tr>
+<tr><td><code>help</code></td><td><code>help [command]</code></td><td>Lista comandos o ayuda de uno</td></tr>
+<tr><td><code>hexdump</code></td><td><code>hexdump &lt;file&gt; [max]</code></td><td>Volcado hexadecimal</td></tr>
+<tr><td><code>httpd</code></td><td><code>httpd [port]</code></td><td>Arranca el servidor HTTP (80 por defecto)</td></tr>
+<tr><td><code>ifconfig</code></td><td><code>ifconfig [-a]</code></td><td>Muestra IP, máscara, gateway y MAC</td></tr>
+<tr><td><code>ip</code></td><td><code>ip [-a]</code></td><td>Alias de <code>ifconfig</code></td></tr>
+<tr><td><code>java</code></td><td><code>java &lt;Class&gt; [args...]</code></td><td>Ejecuta <code>/java/&lt;Class&gt;.class</code> en la JVM</td></tr>
+<tr><td><code>kill</code></td><td><code>kill &lt;tid&gt;</code></td><td>Mata un hilo</td></tr>
+<tr><td><code>ls</code></td><td><code>ls [path]</code></td><td>Lista un directorio</td></tr>
+<tr><td><code>mem</code></td><td><code>mem [-k] [-q] [-t tid]</code></td><td>Estado del heap del kernel</td></tr>
+<tr><td><code>memdump</code></td><td><code>memdump [-C] [-f] &lt;start&gt; &lt;len&gt;</code></td><td>Volcado de memoria</td></tr>
+<tr><td><code>mkdir</code></td><td><code>mkdir &lt;dir&gt;</code></td><td>Crea un directorio</td></tr>
+<tr><td><code>mon</code></td><td><code>mon</code></td><td>Estado de monitores (dueño, count)</td></tr>
+<tr><td><code>mv</code></td><td><code>mv &lt;src&gt; &lt;dst&gt;</code></td><td>Mueve/renombra</td></tr>
+<tr><td><code>nc</code></td><td><code>nc [opciones] &lt;host&gt; &lt;port&gt;</code></td><td>Conexión TCP manual</td></tr>
+<tr><td><code>netdown</code></td><td><code>netdown &lt;dev&gt;</code></td><td>Baja una interfaz de red</td></tr>
+<tr><td><code>netstat</code></td><td><code>netstat</code></td><td>Interfaces y contadores de red</td></tr>
+<tr><td><code>netup</code></td><td><code>netup [dev] [ip] [mask] [gw]</code></td><td>Levanta la red; DHCP si no das IP</td></tr>
+<tr><td><code>ping</code></td><td><code>ping &lt;ip&gt; [-c N] [-i ms]</code></td><td>ICMP echo</td></tr>
+<tr><td><code>ps</code></td><td><code>ps</code></td><td>Hilos, estado, prioridad, CPU% y pila</td></tr>
+<tr><td><code>psram</code></td><td><code>psram [-t]</code></td><td>Ventana PSRAM, heap, libre; <code>-t</code> autotest</td></tr>
+<tr><td><code>pwd</code></td><td><code>pwd</code></td><td>Directorio actual</td></tr>
+<tr><td><code>rdate</code></td><td><code>rdate &lt;host&gt;</code></td><td>Hora remota por RFC 868</td></tr>
+<tr><td><code>reset</code></td><td><code>reset</code></td><td>Reinicio software</td></tr>
+<tr><td><code>rm</code></td><td><code>rm &lt;file&gt;...</code></td><td>Borra ficheros</td></tr>
+<tr><td><code>rmdir</code></td><td><code>rmdir &lt;dir&gt;</code></td><td>Borra un directorio vacío</td></tr>
+<tr><td><code>route</code></td><td><code>route [add|del ...]</code></td><td>Tabla de rutas</td></tr>
+<tr><td><code>sd</code></td><td><code>sd [read &lt;lba&gt;|test [lba]]</code></td><td>Estado/pruebas de la tarjeta SD</td></tr>
+<tr><td><code>sem</code></td><td><code>sem</code></td><td>Estado de semáforos</td></tr>
+<tr><td><code>sleep</code></td><td><code>sleep &lt;seconds&gt;</code></td><td>Duerme N segundos</td></tr>
+<tr><td><code>stack</code></td><td><code>stack [-r] [tid]</code></td><td>Pico de pila por hilo; <code>-r</code> reinicia</td></tr>
+<tr><td><code>stat</code></td><td><code>stat &lt;file&gt;</code></td><td>Metadatos de un fichero/directorio</td></tr>
+<tr><td><code>tail</code></td><td><code>tail [-n N] &lt;file&gt;</code></td><td>Últimas N líneas</td></tr>
+<tr><td><code>tcpstat</code></td><td><code>tcpstat</code></td><td>Estado de sockets TCP</td></tr>
+<tr><td><code>telnet</code></td><td><code>telnet &lt;host&gt; [port]</code></td><td>Cliente Telnet</td></tr>
+<tr><td><code>telnetd</code></td><td><code>telnetd ...</code></td><td>Alias de <code>telnetserver</code></td></tr>
+<tr><td><code>telnetserver</code></td><td><code>telnetserver [-d dev] [-p port] [-n N] [-h]</code></td><td>Servidor Telnet</td></tr>
+<tr><td><code>udpserver</code></td><td><code>udpserver [port]</code></td><td>Servidor UDP de comandos (5000)</td></tr>
+<tr><td><code>udpstat</code></td><td><code>udpstat</code></td><td>Estado de dispositivos UDP</td></tr>
+<tr><td><code>w5500</code></td><td><code>w5500</code></td><td>Estado del controlador Ethernet</td></tr>
+<tr><td><code>wget</code></td><td><code>wget &lt;url&gt; [outfile]</code></td><td>Descarga HTTP a fichero o stdout</td></tr>
+<tr><td><code>xmodem</code></td><td><code>xmodem recv &lt;file&gt;</code></td><td>Recibe por XMODEM</td></tr>
+<tr><td><code>?</code></td><td><code>?</code></td><td>Alias de <code>help</code></td></tr>
+</tbody></table>
+<h3 id="71-comandos-presentes-pero-no-registrados">7.1 Comandos presentes pero no registrados</h3>
+<table>
+<thead><tr><th>Fichero</th><th>Comando</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td><code>shell/xsh_tft.c</code></td><td><code>tft</code></td><td>La entrada está comentada en <code>commandtab[]</code>; se puede activar</td></tr>
+<tr><td><code>shell/xsh_snoop.c</code></td><td><code>snoop</code></td><td>No está en <code>commandtab[]</code>; es una herramienta de captura</td></tr>
+</tbody></table>
+<h3 id="72-comandos-de-diagnóstico-recomendados">7.2 Comandos de diagnóstico recomendados</h3>
+<pre><code class="lang-sh">ps              # hilos, CPU%, pila
+stack           # pico de pila
+free            # imagen, pilas, heap
+psram           # ventana PSRAM y heap
+mem             # heap del kernel
+sem             # semáforos
+mon             # monitores
+netstat         # red
+tcpstat         # TCP
+arp             # ARP
+route           # rutas
+df              # FAT</code></pre>
+<h3 id="73-comandos-de-red-y-ficheros">7.3 Comandos de red y ficheros</h3>
+<pre><code class="lang-sh">netup ETH0
+ping 192.168.1.1
+wget http://192.168.1.1/index.html /index.html
+httpd 80
+telnetserver -n 1
+udpserver 5000
+ls /
+cat /index.html
+java Loop</code></pre>
+<hr>
+<h2 id="8-comandos-udp">8. Comandos UDP</h2>
+<p>El servidor UDP escucha en el puerto <strong>5000</strong> por defecto. Cada datagrama es una línea de texto; la respuesta vuelve al mismo host/puerto. El cliente Java y el dashboard usan este canal.</p>
+<table>
+<thead><tr><th>Comando</th><th>Respuesta / uso</th></tr></thead>
+<tbody>
+<tr><td><code>PING</code></td><td><code>PONG &lt;ticks&gt;</code>; comprobar que el servidor vive</td></tr>
+<tr><td><code>INFO</code></td><td>Versión, uptime, red, heap y tamaño de PSRAM</td></tr>
+<tr><td><code>VERSION</code></td><td>Versión del kernel</td></tr>
+<tr><td><code>UPTIME</code></td><td><code>uptime_ms: N</code></td></tr>
+<tr><td><code>MEM</code></td><td><code>heap_free</code>, <code>heap_used</code>, <code>heap_largest</code>, contadores, PSRAM</td></tr>
+<tr><td><code>PS</code></td><td>Tabla de hilos con CPU% de una ventana de 1 s</td></tr>
+<tr><td><code>NET</code></td><td>IP, máscara, gateway, MAC</td></tr>
+<tr><td><code>GPIO READ &lt;pin&gt;</code></td><td>Lee un GPIO</td></tr>
+<tr><td><code>GPIO WRITE &lt;pin&gt; &lt;0|1&gt;</code></td><td>Escribe un GPIO</td></tr>
+<tr><td><code>GPIO MODE &lt;pin&gt; IN|OUT</code></td><td>Configura dirección</td></tr>
+<tr><td><code>SD INFO</code></td><td>Estado de la tarjeta</td></tr>
+<tr><td><code>TFT TEST</code></td><td>Patrón de prueba en la TFT</td></tr>
+<tr><td><code>BUTTON</code></td><td>Estado del botón</td></tr>
+<tr><td><code>RGB SET &lt;rrggbb&gt;</code></td><td>Color RGB</td></tr>
+<tr><td><code>RGB OFF</code></td><td>Apaga el LED</td></tr>
+<tr><td><code>RGB ON</code></td><td>Restaura el último color</td></tr>
+<tr><td><code>RGB GET</code></td><td>Último color</td></tr>
+<tr><td><code>FW_BEGIN &lt;size&gt;</code></td><td>Inicia subida de firmware</td></tr>
+<tr><td><code>FW_DATA &lt;seq&gt; &lt;len&gt;\n&lt;bytes&gt;</code></td><td>Bloque binario de firmware</td></tr>
+<tr><td><code>FW_END</code></td><td>Cierra, verifica y reinicia</td></tr>
+<tr><td><code>FW_ABORT</code></td><td>Cancela la subida</td></tr>
+<tr><td><code>FW_STATUS</code></td><td>Estado de la subida</td></tr>
+<tr><td><code>REBOOT</code></td><td>Reinicia la placa</td></tr>
+<tr><td><code>HELP</code></td><td>Lista de comandos</td></tr>
+</tbody></table>
+<p>Formato de firmware:</p>
+<pre><code class="lang-text">FW_BEGIN 1048576
+FW_DATA 0 960
+&lt;960 bytes binarios&gt;
+FW_DATA 1 960
+&lt;960 bytes binarios&gt;
+...
+FW_END</code></pre>
+<p>Bloques de 960 bytes; máximo 2 MiB. <code>FW_END</code> verifica y reinicia. No flashees firmware sin autorización.</p>
+<hr>
+<h2 id="9-http-gestor-de-archivos-y-terminal-web">9. HTTP, gestor de archivos y terminal web</h2>
+<h3 id="91-endpoints">9.1 Endpoints</h3>
+<table>
+<thead><tr><th>Método y ruta</th><th>Función</th><th>Qué hace</th></tr></thead>
+<tbody>
+<tr><td><code>GET /</code> y ficheros</td><td><code>serve_static()</code></td><td>Sirve <code>index.html</code> y ficheros de la SD</td></tr>
+<tr><td><code>GET /api/files?path=/dir</code></td><td><code>api_files()</code></td><td>Lista un directorio en JSON</td></tr>
+<tr><td><code>GET /api/download?path=/file</code></td><td><code>api_download()</code></td><td>Descarga un fichero</td></tr>
+<tr><td><code>PUT /api/file?path=/file</code></td><td><code>api_upload()</code></td><td>Sube un fichero</td></tr>
+<tr><td><code>DELETE /api/file?path=/file</code></td><td><code>api_delete()</code></td><td>Borra un fichero</td></tr>
+<tr><td><code>POST /api/mkdir?path=/dir</code></td><td><code>api_mkdir()</code></td><td>Crea un directorio</td></tr>
+<tr><td><code>POST /api/rmdir?path=/dir[&amp;recursive=1]</code></td><td><code>api_rmdir()</code></td><td>Borra un directorio</td></tr>
+<tr><td><code>POST /api/exec</code></td><td><code>api_exec()</code></td><td>Encola un comando del shell</td></tr>
+<tr><td><code>GET /api/job?id=N</code></td><td><code>api_job()</code></td><td>Consulta el trabajo</td></tr>
+</tbody></table>
+<h3 id="92-límites">9.2 Límites</h3>
+<table>
+<thead><tr><th>Elemento</th><th>Valor</th></tr></thead>
+<tbody>
+<tr><td>Puerto HTTP</td><td>80</td></tr>
+<tr><td>Buffer de petición</td><td>2048 B</td></tr>
+<tr><td>Pila de <code>httpd</code></td><td>8192 B</td></tr>
+<tr><td>Timeout de recepción</td><td>2000 ms</td></tr>
+<tr><td>Comando máximo</td><td>159 B</td></tr>
+<tr><td>Salida capturada</td><td>8192 B</td></tr>
+<tr><td>Subida máxima</td><td>16 MB</td></tr>
+<tr><td>Buffer de subida</td><td>1024 B</td></tr>
+</tbody></table>
+<p>El <code>httpd</code> atiende <strong>una conexión a la vez</strong>. El terminal web ejecuta un comando en el hilo <code>webshell</code> y captura la salida en <code>MEMTTY0</code>. No hay autenticación: úsalo solo en una LAN de confianza.</p>
+<h3 id="93-gat-gestor-de-archivos-y-terminal">9.3 GAT: Gestor de Archivos y Terminal</h3>
+<p>En este árbol <strong>no existe una librería C llamada GAT</strong>. Lo que sí existe es el módulo que llamamos <strong>GAT</strong> (Gestor de Archivos y Terminal), formado por:</p>
+<ul><li><code>shell/xsh_httpd.c</code>: servidor HTTP y ficheros estáticos;</li><li><code>shell/httpapi.c</code>: API JSON de archivos y ejecución;</li><li><code>shell/webterm.c</code>: worker, monitor, semáforo y <code>MEMTTY0</code>;</li><li><code>web/index.html</code>: interfaz de usuario con gestor de archivos y terminal.</li></ul>
+<p>Flujo del terminal:</p>
+<pre><code class="lang-text">navegador
+  └─ POST /api/exec
+       └─ api_exec() → webtermSubmit() → signal(jobsem)
+            └─ webshell → webtermRun()
+                 ├─ builtin: ejecuta en webshell
+                 └─ externo: create(hijo) con stdout/stderr en MEMTTY0
+  └─ GET /api/job?id=N
+       └─ api_job() → webtermStatus()/webtermSnapshot()</code></pre>
+<p>Si por "GAT" te referías a otra librería, no está en este repositorio. La capa de soporte del kernel es <code>lib/libxc</code>; la abstracción de dispositivos es <code>devtab[]</code>.</p>
+<hr>
+<h2 id="10-modificar-el-kernel">10. Modificar el kernel</h2>
+<h3 id="101-añadir-un-comando">10.1 Añadir un comando</h3>
+<ol><li>Crea <code>shell/xsh_midemo.c</code>:</li></ol>
+<pre><code class="lang-c">#include &lt;shell.h&gt;
+#include &lt;stdio.h&gt;
+
+shellcmd xsh_midemo(int nargs, char *args[])
+{
+    printf(&quot;hola desde midemo\n&quot;);
+    return SHELL_OK;
+}</code></pre>
+<ol><li>Añade el prototipo en <code>include/shell.h</code>.</li><li>Añade la entrada en <code>commandtab[]</code> (<code>shell/shell.c</code>).</li><li>Añade <code>xsh_midemo.c</code> a <code>C_FILES</code> en <code>shell/Makerules</code>.</li><li>Recompila.</li></ol>
+<h3 id="102-añadir-un-servicio-de-arranque">10.2 Añadir un servicio de arranque</h3>
+<p>Edita <code>system/main.c</code> y llama al comando antes de crear <code>SHELL0</code>:</p>
+<pre><code class="lang-c">char *mi_argv[] = {&quot;micomando&quot;, &quot;arg&quot;, NULL};
+xsh_micomando(2, mi_argv);</code></pre>
+<p>Si el servicio debe correr en su propio hilo, crea un hilo con <code>create()</code> y <code>ready()</code>.</p>
+<h3 id="103-añadir-una-llamada-al-sistema">10.3 Añadir una llamada al sistema</h3>
+<ol><li>Implementa <code>system/misyscall.c</code>.</li><li>Declara <code>syscall misyscall(...)</code> en <code>include/kernel.h</code> o en una cabecera</li></ol>
+<p>propia.</p>
+<ol><li>Añade el <code>.c</code> a <code>system/Makerules</code>.</li><li>Si la llamada usa una tabla nueva, añádela a <code>xinu.conf</code>.</li></ol>
+<h3 id="104-cambiar-la-configuración">10.4 Cambiar la configuración</h3>
+<p>Edita <code>compile/platforms/esp32s3/xinu.conf</code>:</p>
+<pre><code class="lang-c">#define NTHREAD   50
+#define NSEM      128
+#define NMON      16
+#define NMAILBOX  10
+#define NPOOL     8
+#define NTCP      10</code></pre>
+<p>Después borra <code>include/conf.h</code> y <code>system/conf.c</code> y recompila.</p>
+<h3 id="105-errores-típicos">10.5 Errores típicos</h3>
+<table>
+<thead><tr><th>Error</th><th>Causa</th><th>Solución</th></tr></thead>
+<tbody>
+<tr><td><code>undefined reference</code></td><td>Falta el <code>.c</code> en <code>Makerules</code></td><td>Añádelo a <code>C_FILES</code></td></tr>
+<tr><td><code>implicit declaration</code></td><td>Falta el prototipo</td><td>Incluye la cabecera correcta</td></tr>
+<tr><td><code>dram overflowed</code></td><td>Demasiadas globales</td><td>Mueve buffers a PSRAM/heap</td></tr>
+<tr><td><code>iram overflowed</code></td><td>Demasiado código crítico</td><td>Saca código de IRAM</td></tr>
+<tr><td><code>conflict</code> en <code>conf.h</code></td><td>Configuración vieja</td><td>Borra <code>conf.h</code> y <code>conf.c</code></td></tr>
+<tr><td><code>invalid AMP bootinfo</code></td><td>Contrato loader/Xinu mal</td><td>Sincroniza <code>bootinfo.h</code></td></tr>
+</tbody></table>
+<hr>
+<h2 id="11-portar-el-kernel">11. Portar el kernel</h2>
+<h3 id="111-qué-está-abstraído">11.1 Qué está abstraído</h3>
+<table>
+<thead><tr><th>Capa</th><th>Abstracción</th><th>Dónde</th></tr></thead>
+<tbody>
+<tr><td>Dispositivos</td><td><code>devtab[]</code> y <code>struct devsw</code></td><td><code>system/</code>, <code>include/device.h</code></td></tr>
+<tr><td>Plataforma</td><td><code>platforminit()</code>, <code>platform</code></td><td><code>system/platforms/&lt;plat&gt;/</code></td></tr>
+<tr><td>Contexto</td><td><code>ctxsw.S</code></td><td><code>system/platforms/&lt;plat&gt;/</code></td></tr>
+<tr><td>Linker</td><td><code>ld-*.script</code></td><td><code>compile/platforms/&lt;plat&gt;/</code></td></tr>
+<tr><td>Arranque</td><td><code>start.S</code></td><td><code>loader/platforms/&lt;plat&gt;/</code></td></tr>
+<tr><td>Build</td><td><code>platformVars</code>, <code>Makerules</code></td><td><code>compile/</code> y cada módulo</td></tr>
+<tr><td>Red</td><td><code>struct netif</code>, <code>netSend/netRecv</code></td><td><code>network/net/</code></td></tr>
+<tr><td>JVM</td><td><code>jvm_io.h</code></td><td><code>jvm/</code> y <code>device/jvm/</code></td></tr>
+</tbody></table>
+<h3 id="112-pasos-para-una-placa-nueva">11.2 Pasos para una placa nueva</h3>
+<ol><li>Copia <code>compile/platforms/esp32s3</code> a <code>compile/platforms/miplaca</code>.</li><li>Ajusta <code>platformVars</code>: toolchain, flags, <code>APPCOMPS</code>, <code>DEVICES</code>.</li><li>Ajusta <code>ld-amp.script</code>: direcciones XIP/PSRAM y <code>.stacks</code>.</li><li>Ajusta <code>start.S</code>: reloj, VECBASE, copia de secciones, pila.</li><li>Ajusta <code>platforminit.c</code>: PSRAM, UART, relojes, watchdogs.</li><li>Ajusta <code>xinu.conf</code>: dispositivos y números de tabla.</li><li>Ajusta los drivers de UART, SD, TFT, Ethernet y GPIO.</li><li>Ajusta el loader IDF: partición, direcciones, <code>bootinfo</code>.</li><li>Compila, flashea y prueba consola, <code>free</code>, <code>ps</code>, red y FAT.</li></ol>
+<h3 id="113-qué-no-se-puede-cambiar-a-la-ligera">11.3 Qué no se puede cambiar a la ligera</h3>
+<ul><li>El ABI CALL0 y el layout de <code>ctxsw.S</code>.</li><li>El contrato <code>bootinfo</code> sin sincronizar loader y payload.</li><li>La dirección XIP <code>0x42100000</code> sin cambiar el loader.</li><li>El alias PSRAM <code>0x3D801000</code> sin cambiar el linker y el loader.</li><li>El heap único: si añades otro allocator, rompes <code>free</code>/<code>malloc</code>.</li></ul>
+<hr>
+<h2 id="12-simple-jvm">12. Simple JVM</h2>
+<h3 id="121-qué-es">12.1 Qué es</h3>
+<p>Es un intérprete de bytecodes Java, no una JVM completa. Carga un <code>.class</code>, parsea constant pool, campos y métodos, ejecuta <code>&lt;clinit&gt;</code> y <code>main(String[])</code>. Conserva el paquete <code>esp32p4.*</code> para que las clases del P4 corran sin recompilar.</p>
+<h3 id="122-estado-y-memoria">12.2 Estado y memoria</h3>
+<table>
+<thead><tr><th>Elemento</th><th>Valor</th></tr></thead>
+<tbody>
+<tr><td>Pila del hilo</td><td><code>JVM_STK</code> = 65536 B</td></tr>
+<tr><td>Slots de heap</td><td><code>JVM_HEAP_SLOTS</code> = 2048</td></tr>
+<tr><td>Locals por frame</td><td><code>JVM_MAX_LOCALS</code> = 16</td></tr>
+<tr><td>Profundidad de llamadas</td><td><code>JVM_MAX_CALLS</code> = 32</td></tr>
+<tr><td>Estáticos</td><td><code>JVM_MAX_STATICS</code> = 64</td></tr>
+<tr><td>Pila de operandos</td><td>500 entradas</td></tr>
+</tbody></table>
+<p>Cada ejecución crea una instancia <code>Jvm</code> en PSRAM con <code>jvm_state_new()</code>. El estado incluye pools, locals, heap, estáticos y frames. La VM es reentrante: varias tareas pueden ejecutar Java a la vez, cada una con su instancia.</p>
+<h3 id="123-no-hay-gc">12.3 No hay GC</h3>
+<p><strong>No hay recolector de basura.</strong> <code>heap_new_slot()</code> busca un slot libre, pero nada los libera durante la ejecución:</p>
+<ul><li>objetos, arrays, Strings y StringBuilders ocupan slots hasta el final;</li><li><code>jvm_state_free()</code> libera todo al terminar la tarea;</li><li><code>free_pools()</code> libera atributos de métodos al final;</li><li>no hay <code>System.gc()</code>, finalizadores, compactación ni referencias débiles.</li></ul>
+<p>Consecuencia: un bucle que crea objetos sin parar agota los 2048 slots y llama a <code>exit(6)</code> (en el target, mata la tarea). Para apps largas:</p>
+<ul><li>reutiliza objetos;</li><li>evita <code>new</code> dentro de bucles;</li><li>usa arrays de tamaño fijo;</li><li>no confíes en que la memoria se recupere.</li></ul>
+<h3 id="124-natives">12.4 Natives</h3>
+<p>Los natives son funciones C registradas en <code>jvm/java_lib.c</code>:</p>
+<pre><code class="lang-c">{&quot;esp32p4/RGB&quot;, &quot;set&quot;, esp32p4_rgb_set}</code></pre>
+<p>La firma es:</p>
+<pre><code class="lang-c">int mi_native(StackFrame *stack, SimpleConstantPool *p, char *type);</code></pre>
+<p>Los argumentos están en la pila de operandos; el último argumento está en la cima. Se leen con <code>popInt(stack)</code> y se devuelve con <code>pushInt(stack, valor)</code>. El tutorial completo está en <a href="natives.html">Manual de natives</a>.</p>
+<h3 id="125-limitaciones">12.5 Limitaciones</h3>
+<ul><li>No hay <code>Thread</code> real; <code>Thread.sleep</code> se mapea a <code>Sys.sleep</code>.</li><li>No hay PMIC en el S3; <code>esp32p4.PMIC</code> no existe.</li><li>LVGL está en fase 2.</li><li><code>Sys.run()</code> crea otra tarea JVM; no está probado en todas las apps.</li><li>La JVM necesita FAT/SD para cargar <code>.class</code>.</li><li><code>date</code> puede mostrar 1900 porque el RTC no se inicializa.</li></ul>
+<hr>
+<h2 id="13-flujos-de-trabajo">13. Flujos de trabajo</h2>
+<h3 id="131-compilar-y-flashear">13.1 Compilar y flashear</h3>
+<pre><code class="lang-sh">cd /home/daniel/xinu-s3-amp
+make kernel S3_CONFIG=platforms/esp32s3/xinu.conf
+make flash S3_PORT=/dev/ttyACM0</code></pre>
+<h3 id="132-compilar-el-loader">13.2 Compilar el loader</h3>
+<pre><code class="lang-sh">make loader
+make loader-flash S3_PORT=/dev/ttyACM0</code></pre>
+<h3 id="133-compilar-java">13.3 Compilar Java</h3>
+<pre><code class="lang-sh">make java
+# o
+./jvm/build-examples.sh --to /ruta/a/la/sd</code></pre>
+<h3 id="134-generar-la-web">13.4 Generar la web</h3>
+<pre><code class="lang-sh">make web
+make docs</code></pre>
+<p><code>make web</code> valida <code>web/index.html</code>, genera <code>web/loader.html</code>, <code>web/amp.html</code>, <code>web/natives.html</code>, <code>web/inventory.html</code> y copia el paquete a <code>web/dist/</code>.</p>
+<h3 id="135-pruebas-mínimas">13.5 Pruebas mínimas</h3>
+<pre><code class="lang-sh">ps
+free
+psram
+mem
+netstat
+ping 192.168.1.1
+df
+ls /
+java Loop</code></pre>
+<hr>
+<h2 id="14-problemas-típicos">14. Problemas típicos</h2>
+<table>
+<thead><tr><th>Síntoma</th><th>Causa</th><th>Solución</th></tr></thead>
+<tbody>
+<tr><td>No arranca</td><td><code>xinu.img</code> no está en <code>0x100000</code></td><td>Reflashea el payload</td></tr>
+<tr><td><code>invalid AMP bootinfo</code></td><td>Contrato desincronizado</td><td>Sincroniza <code>bootinfo.h</code></td></tr>
+<tr><td>Se reinicia</td><td>Watchdog IDF</td><td>Revisa <code>platforminit</code> y <code>sdkconfig</code></td></tr>
+<tr><td>No hay red</td><td>Cable, link o DHCP</td><td><code>netup ETH0</code>, <code>w5500</code>, <code>netstat</code></td></tr>
+<tr><td><code>httpd</code> no responde</td><td>FAT no montada</td><td><code>fat mount</code>, <code>df</code></td></tr>
+<tr><td><code>java</code> no encuentra clase</td><td><code>.class</code> fuera de <code>/java</code></td><td>Copia a <code>/java</code></td></tr>
+<tr><td>JVM muere</td><td>Slots agotados</td><td>Reduce asignaciones</td></tr>
+<tr><td><code>free</code> negativo</td><td>Bug antiguo</td><td>Usa <code>psram</code>/<code>mem</code></td></tr>
+<tr><td><code>make</code> no encuentra toolchain</td><td><code>env.sh</code> no cargado</td><td><code>make kernel</code> ya lo carga</td></tr>
+</tbody></table>
+<hr>
+<h2 id="15-inventario-completo">15. Inventario completo</h2>
+<p>El inventario generado desde el árbol está en <a href="inventory.html">Inventario del árbol</a> y en <code>web/inventory.html</code>. Se regenera con:</p>
+<pre><code class="lang-sh">make inventory</code></pre>
+<p>Incluye todos los ficheros fuente, cabeceras, scripts, configuración y documentación, con su módulo y rol. Los ficheros clave tienen explicación detallada en las secciones anteriores.</p>
+<hr>
+<h2 id="16-referencias">16. Referencias</h2>
+<ul><li><a href="loader.html">Manual del loader</a>: loader, particiones, <code>bootinfo</code>, salto.</li><li><a href="natives.html">Manual de natives</a>: librerías Java y natives.</li><li><a href="manual.html">Manual del kernel</a>: C, concurrencia y estudio de caso.</li><li><code>README_AMP.md</code>: estado del port AMP.</li><li><code>README_BUILD.md</code>: build y configuración.</li><li><code>README_ESP32S3.md</code>: hardware y resultados.</li><li><code>web/README.md</code>: dashboard, API y terminal.</li></ul>
+</main>
+</body>
+</html>
